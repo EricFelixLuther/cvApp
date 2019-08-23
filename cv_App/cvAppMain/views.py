@@ -21,7 +21,7 @@ class CV_Viewer(View):
     def post(self, request, *args, **kwargs):
         form = self.form(data=request.POST)
         if form.is_valid():
-            context = {}
+            context = {"company": form.company}
             for each in form.company.texts.filter(language=form.cleaned_data["language"]):
                 context[each.text_type.codename] = each.text
             return render(
