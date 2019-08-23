@@ -2,34 +2,42 @@
 from __future__ import unicode_literals
 
 from django.shortcuts import render
-
-# Create your views here.
+from django.template import Template, Context
 from django.template.loader import render_to_string
+from django.template.response import TemplateResponse
 from django.views import View
 
-from cv_App.cvAppMain.forms import Company_Select_Form_PL, Company_Select_Form_ENG
+from cvAppMain.forms import CompanySelectForm
 
 
 class CV_Viewer(View):
-    select_company = "select_company.html"
-    cv_template = None
-    form = None
+    template_name = "select_company.html"
+    form = CompanySelectForm
 
-    def get(self, *args, **kwargs):
-        return render_to_string(
-            template_name="select_company.html",
+    def get(self, request, *args, **kwargs):
+        return render(
+            request,
+            template_name=self.template_name,
             context={"form": self.form()}
         )
 
-
-class CV_pl(View):
-    cv_template = "cv_template_pl.html"
-    form = Company_Select_Form_PL
-
-
-class CV_eng(View):
-    form = Company_Select_Form_ENG
-    cv_template = "cv_template_eng.html"
+    def post(self, request, *args, **kwargs):
+        form = self.form(data=request.POST)
+        if form.is_valid():
+            context = {}
+            for each in form.company.texts.filter(language=form.cleaned_data["language"]):
+                context[each.text_type.codename] = each.text
+            return render(
+                request,
+                form.company.document.name,
+                context=context
+            )
+        else:
+            return render(
+                request,
+                template_name=self.template_name,
+                context={"form": form}
+            )
 
 
 class CV_export(View):

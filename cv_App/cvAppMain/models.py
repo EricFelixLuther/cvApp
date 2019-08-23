@@ -3,104 +3,51 @@ from __future__ import unicode_literals
 
 from django.db import models
 
+from dbtemplates.models import Template
+
 # Create your models here.
 
 
-class BaseData():
+class BaseData:
     name = "Krzysztof Maciejczuk"
     email = "maciejczuk.krzysztof@gmail.com"
     phone = "796 157 493"
     github = "https://github.com/EricFelixLuther/"
 
 
-class Summary_Text(models.Model):
-    text = models.TextField()
-    text_eng = models.TextField()
+class TextTypes(models.Model):
+    codename = models.CharField(max_length=16)
 
-
-class IT_Tools(models.Model):
-    text = models.CharField(max_length=32)
-    text_eng = models.CharField(max_length=32)
-
-
-class IT_Tools_List(models.Model):
-    it_tool = models.ForeignKey(IT_Tools)
-    text = models.CharField(max_length=32)
-    text_eng = models.CharField(max_length=32)
-
-
-class IT_Skills(models.Model):
-    text = models.CharField(max_length=32)
-    text_eng = models.CharField(max_length=32)
-
-
-class Hobbies(models.Model):
-    text = models.CharField(max_length=64)
-    text_eng = models.CharField(max_length=64)
+    def __str__(self):
+        return self.codename
 
 
 class Languages(models.Model):
-    lang = models.CharField(max_length=16)
-    level = models.CharField(max_length=3)
-    lang_eng = models.CharField(max_length=16)
+    lang = models.CharField(max_length=32)
+
+    def __str__(self):
+        return self.lang
 
 
-class Other_Job_Experience(models.Model):
-    name = models.CharField(max_length=32)
-    year_from = models.PositiveSmallIntegerField()
-    year_to = models.PositiveSmallIntegerField()
-    other = models.CharField(max_length=32)
-    name_eng = models.CharField(max_length=32)
-    other_eng = models.CharField(max_length=32)
-
-
-class Job_Experience(models.Model):
-    company = models.CharField(max_length=64)
-    position = models.CharField(max_length=32)
-    start = models.DateField()
-    until = models.DateField(blank=True, null=True)
-    company_eng = models.CharField(max_length=64)
-    position_eng = models.CharField(max_length=32)
-
-
-class Job_Details(models.Model):
-    detail_type = models.CharField(max_length=14, choices=(("Responsibility", "Responsibility"),
-                                                           ("Achievement", "Achievement")))
+class Texts(models.Model):
     text = models.TextField()
-    text_eng = models.TextField()
+    text_type = models.ForeignKey(TextTypes, on_delete=models.CASCADE)
+    language = models.ForeignKey(Languages, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.text_type.codename + " " + self.text[:20]
 
 
-class Education(models.Model):
-    school = models.CharField(max_length=128)
-    start = models.DateField()
-    until = models.DateField(blank=True, null=True)
-    faculty = models.CharField(max_length=32)
-    specialization = models.CharField(max_length=32)
-    degree = models.CharField(max_length=16)
-    school_eng = models.CharField(max_length=128)
-    faculty_eng = models.CharField(max_length=32)
-    specialization_eng = models.CharField(max_length=32)
-    degree_eng = models.CharField(max_length=16)
+class RecruitingCompany(models.Model):
+    name = models.CharField(max_length=64)
+    codename = models.CharField(max_length=64, blank=True)
+    active = models.BooleanField(default=True)
+    document = models.ForeignKey(Template, on_delete=models.CASCADE)
+    texts = models.ManyToManyField(Texts)
 
+    def __str__(self):
+        return self.name
 
-class Courses(models.Model):
-    title = models.CharField(max_length=64)
-    date_from = models.DateField()
-    date_until = models.DateField()
-    organizer = models.CharField(max_length=32)
-    certificate = models.BooleanField()
-    title_eng = models.CharField(max_length=64)
-    organizer_eng = models.CharField(max_length=32)
-
-
-class Company(models.Model):
-    name = models.CharField(max_length=32)
-    summary = models.ForeignKey(Summary_Text)
-    it_tools = models.ManyToManyField(IT_Tools)
-    it_skills = models.ManyToManyField(IT_Skills)
-    hobbies = models.ManyToManyField(Hobbies)
-    languages = models.ManyToManyField(Languages)
-    other_jobs = models.ManyToManyField(Other_Job_Experience)
-    job_experience = models.ManyToManyField(Job_Experience)
-    education = models.ManyToManyField(Education)
-    courses = models.ManyToManyField(Courses)
+    def save(self, *args, **kwargs):
+        self.codename = self.name.replace(" ", "").lower()
+        return super().save()

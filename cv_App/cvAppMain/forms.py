@@ -2,41 +2,26 @@
 
 from django import forms
 
-from cv_App.cvAppMain.models import Company
+from cvAppMain.models import RecruitingCompany, Languages
 
 
-class Company_Select_Abstract(forms.ModelForm):
-    missing_error = ''
-    not_found_error = ''
-
+class CompanySelectForm(forms.ModelForm):
+    language = forms.ModelChoiceField(queryset=Languages.objects.all(),
+                                      required=True)
     class Meta:
-        abstract = True
+        model = RecruitingCompany
+        fields = ["name"]
+        widgets = {"name": forms.TextInput}
 
     def clean(self):
-        if not self.cleaned_data:
-            self.add_error("name", self.missing_error)
+        if not self.cleaned_data["name"]:
+            self.add_error("name", "Name not given.")
         else:
-            try:
-                self.company = self.Meta.model.objects.get(name=self.cleaned_data["name"])
-            except self.Meta.model.DoesNotExist:
-                self.add_error("name", self.not_found_error)
-
-
-class Company_Select_Form_PL(Company_Select_Abstract):
-    missing_error = 'Nie podano nazwy firmy'
-    not_found_error = 'Nie znaleziono firmy o tej nazwie'
-
-    class Meta:
-        model = Company
-        fields = ["name"]
-        widgets = {"name": forms.CharField(label="Proszę wprowadzić nazwę firmy")}
-
-
-class Company_Select_Form_ENG(Company_Select_Abstract):
-    missing_error = 'Company name was not given'
-    not_found_error = 'Company with given name has not been found'
-
-    class Meta:
-        model = Company
-        fields = ["name"]
-        widgets = {"name": forms.CharField(label="Please, enter company's name")}
+            codename = self.cleaned_data["name"].replace(" ", "").lower()
+            self.company = self.Meta.model.objects.filter(codename=codename).first()
+            if not self.company:
+                self.add_error("name", "Your company did not contact me for recruitment purposes.")
+            else:
+                if not self.company.active:
+                    self.add_error("name", "Your company does not have access to my CV anymore. If you wish to see it, again, please contact me again.")
+        return self.cleaned_data

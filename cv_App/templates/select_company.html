@@ -1,0 +1,9 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<form class="" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <button type="submit">Get CV!</button>
+</form>
+{% endblock %}
