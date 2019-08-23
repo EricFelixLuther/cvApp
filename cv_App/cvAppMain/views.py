@@ -2,9 +2,6 @@
 from __future__ import unicode_literals
 
 from django.shortcuts import render
-from django.template import Template, Context
-from django.template.loader import render_to_string
-from django.template.response import TemplateResponse
 from django.views import View
 
 from cvAppMain.forms import CompanySelectForm
