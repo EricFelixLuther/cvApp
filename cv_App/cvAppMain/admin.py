@@ -3,8 +3,14 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 
-from cvAppMain.models import TextTypes, Languages, Texts, RecruitingCompany
+from cvAppMain.models import TextType, Language, Text, RecruitingCompany, Picture
 
 # Register your models here.
 
-admin.site.register((TextTypes, Languages, Texts, RecruitingCompany))
+admin.site.register((
+    TextType,
+    Language,
+    Text,
+    RecruitingCompany,
+    Picture
+))

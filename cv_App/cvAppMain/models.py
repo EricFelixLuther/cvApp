@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.db import models
 
 from dbtemplates.models import Template
@@ -15,35 +12,48 @@ class BaseData:
     github = "https://github.com/EricFelixLuther/"
 
 
-class TextTypes(models.Model):
+class TextType(models.Model):
     codename = models.CharField(max_length=16)
 
     def __str__(self):
         return self.codename
 
 
-class Languages(models.Model):
+class Language(models.Model):
     lang = models.CharField(max_length=32)
 
     def __str__(self):
         return self.lang
 
 
-class Texts(models.Model):
+class Text(models.Model):
     text = models.TextField()
-    text_type = models.ForeignKey(TextTypes, on_delete=models.CASCADE)
-    language = models.ForeignKey(Languages, on_delete=models.CASCADE)
+    text_type = models.ForeignKey(TextType, on_delete=models.CASCADE)
+    language = models.ForeignKey(Language, on_delete=models.CASCADE)
+    markdown = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.text_type.codename + " " + self.text[:20]
+        return "%s: %s (%s)" % (
+                self.language,
+                self.text_type.codename,
+                self.text
+        )
 
+
+class Picture(models.Model):
+    name = models.CharField(max_length=32)
+    pic = models.ImageField(upload_to="static/pics")
+
+    def __str__(self):
+        return self.name
 
 class RecruitingCompany(models.Model):
     name = models.CharField(max_length=64)
     codename = models.CharField(max_length=64, blank=True)
     active = models.BooleanField(default=True)
     document = models.ForeignKey(Template, on_delete=models.CASCADE)
-    texts = models.ManyToManyField(Texts)
+    texts = models.ManyToManyField(Text)
+    picture = models.ForeignKey(Picture, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.name

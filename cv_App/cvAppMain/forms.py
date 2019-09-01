@@ -1,17 +1,14 @@
-# -*- coding: utf-8 -*-
-
 from django import forms
 
-from cvAppMain.models import RecruitingCompany, Languages
+from cvAppMain.models import RecruitingCompany, Language
 
 
 class CompanySelectForm(forms.ModelForm):
-    language = forms.ModelChoiceField(queryset=Languages.objects.all(),
+    language = forms.ModelChoiceField(queryset=Language.objects.all(),
                                       required=True)
     class Meta:
         model = RecruitingCompany
         fields = ["name"]
-        widgets = {"name": forms.TextInput}
 
     def clean(self):
         if not self.cleaned_data["name"]:

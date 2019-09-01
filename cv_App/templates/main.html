@@ -32,6 +32,21 @@
             body.find("table").addClass("table");
         });
     </script>
+    <style media="screen">
+        @page {
+          size: A4;
+          margin: 10mm;
+        }
+
+        @media print {
+          html, body {
+            width: 210mm;
+            height: 297mm;
+          }
+        }
+
+        {% block extra_css %}{% endblock %}
+    </style>
   </head>
   <body>
     {% block content %}{% endblock %}
