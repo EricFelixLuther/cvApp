@@ -20,13 +20,6 @@
     <script type="text/javascript" src="{% static 'showdownjs/showdown.min.js' %}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
-            var converter = new showdown.Converter();
-            var body = $("body");
-            body.html(
-                converter.makeHtml(
-                    body.html()
-                )
-            );
             body.find("ul").addClass("list-group");
             body.find("li").addClass("list-group-item");
             body.find("table").addClass("table");
