@@ -23,7 +23,7 @@
             {% block extra_js %}{% endblock %}
         });
     </script>
-    <style media="screen">
+    <style media="print">
         @page {
           size: A4;
           margin: 7mm;
@@ -35,8 +35,10 @@
             height: 297mm;
           }
         }
-
-        {% block extra_css %}{% endblock %}
+        {% block print_css %}{% endblock %}
+    </style>
+    <style media="screen">
+      {% block screen_css %}{% endblock %}
     </style>
   </head>
   <body>

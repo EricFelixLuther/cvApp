@@ -1,10 +1,26 @@
 {% extends 'main.html' %}
 
 {% block content %}
-<form method="post">
-    {% csrf_token %}
-    {{ form }}
-    <button type="submit" name="submit" value="get_cv">Get CV!</button>
-    <button type="submit" name="submit" value="print_cv" title="Still experimental feature">Get PDF</button>
-</form>
+<div class="container">
+    <div class="row justify-content-center align-items-center my-5 p-5">
+        <div class="col-lg-8 col-md-12">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col">
+                        <table class="table">
+                            {{ form.as_table }}
+                        </table>
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-6">
+                        <button class="btn btn-primary" type="submit" name="submit" value="get_cv">Get CV!</button>
+                        <button class="btn btn-primary" type="submit" name="submit" value="print_cv" title="Still experimental feature">Get PDF</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
