@@ -64,17 +64,14 @@ class CV_Viewer(View):
         try:
             if form.company.lock_pdf:
                 # Find previously generated file
-                f = open(f'pdfs/{form.company.codename}.pdf', 'rb')
+                with open(f'pdfs/{form.company.codename}.pdf', 'rb') as f:
+                    response = HttpResponse(f, content_type='application/pdf')
             else:
-                f = render_to_pdf(form, context)
+                response = render_to_pdf(form, context)
         except FileNotFoundError:  # If none was generated, generate it
-            f = render_to_pdf(form, context)
+            response = render_to_pdf(form, context)
 
-        if f:
-            return HttpResponse(f, content_type='application/pdf')
-        else:
-            return HttpResponse('Something went wrong while generating PDF! Sorry!')
-
+        return response
 
 def render_to_pdf(form, context):
     try:  # Render HTML into a file, try generating it
@@ -86,7 +83,8 @@ def render_to_pdf(form, context):
         os.remove(f'{form.company.codename}.html')  # Remove HTML, it's redundant now
 
         with open(f'pdfs/{form.company.codename}.pdf', 'rb') as f:
-            return f
+            return HttpResponse(f, content_type='application/pdf')
 
     except Exception as e:
         logger.error(e)
+        return HttpResponse('Something went wrong while generating PDF! Sorry!')
