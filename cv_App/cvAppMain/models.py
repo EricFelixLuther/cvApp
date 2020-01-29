@@ -28,6 +28,7 @@ class Language(models.Model):
 
 
 class Text(models.Model):
+    title = models.CharField(max_length=64)
     text = models.TextField()
     text_type = models.ForeignKey(TextType, on_delete=models.CASCADE)
     language = models.ForeignKey(Language, on_delete=models.CASCADE)
@@ -37,7 +38,7 @@ class Text(models.Model):
         return "%s: %s (%s)" % (
                 self.language,
                 self.text_type.codename,
-                self.text
+                self.title
         )
 
 

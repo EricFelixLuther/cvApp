@@ -1,6 +1,7 @@
 import os
-
 import markdown2
+import logging
+
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
@@ -9,6 +10,10 @@ from django.views import View
 
 from cvAppMain.forms import CompanySelectForm
 from cvAppMain.models import BaseData
+
+
+logger = logging.getLogger('debug')
+
 
 class CV_Viewer(View):
     template_name = "select_company.html"
@@ -72,6 +77,7 @@ class CV_Viewer(View):
                     return HttpResponse(f, content_type='application/pdf')
 
             except Exception as e:
+                logger.error(e)
                 return HttpResponse('Something went wrong while generating PDF! Sorry!')
         # Return previously generated PDF
         return HttpResponse(f, content_type='application/pdf')
