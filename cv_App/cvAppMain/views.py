@@ -62,23 +62,31 @@ class CV_Viewer(View):
 
     def _get_pdf(self, request, form, context):
         try:
-            # Find previously generated file
-            if not form.company.lock_pdf:
+            if form.company.lock_pdf:
+                # Find previously generated file
                 f = open(f'pdfs/{form.company.codename}.pdf', 'rb')
-        except IOError:  # If none was generated
-            try:  # Render HTML into a file, try generating it
-                html = render_to_string(form.company.document.name, context)
-                with open(f'{form.company.codename}.html', 'w') as f:
-                    f.write(str(html))
+            else:
+                f = render_to_pdf(form, context)
+        except FileNotFoundError:  # If none was generated, generate it
+            f = render_to_pdf(form, context)
 
-                os.system(f'wkhtmltopdf {form.company.codename}.html pdfs/{form.company.codename}.pdf')
-                os.remove(f'{form.company.codename}.html')  # Remove HTML, it's redundant now
+        if f:
+            return HttpResponse(f, content_type='application/pdf')
+        else:
+            return HttpResponse('Something went wrong while generating PDF! Sorry!')
 
-                with open(f'pdfs/{form.company.codename}.pdf', 'rb') as f:
-                    return HttpResponse(f, content_type='application/pdf')
 
-            except Exception as e:
-                logger.error(e)
-                return HttpResponse('Something went wrong while generating PDF! Sorry!')
-        # Return previously generated PDF
-        return HttpResponse(f, content_type='application/pdf')
+def render_to_pdf(form, context):
+    try:  # Render HTML into a file, try generating it
+        html = render_to_string(form.company.document.name, context)
+        with open(f'{form.company.codename}.html', 'w') as f:
+            f.write(str(html))
+
+        os.system(f'wkhtmltopdf {form.company.codename}.html pdfs/{form.company.codename}.pdf')
+        os.remove(f'{form.company.codename}.html')  # Remove HTML, it's redundant now
+
+        with open(f'pdfs/{form.company.codename}.pdf', 'rb') as f:
+            return f
+
+    except Exception as e:
+        logger.error(e)
