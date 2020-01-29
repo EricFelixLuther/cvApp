@@ -1,8 +1,9 @@
+import re
 from django.db import models
-
 from dbtemplates.models import Template
 
-# Create your models here.
+
+pattern = re.compile('[\W_]+')
 
 
 class BaseData:
@@ -59,5 +60,5 @@ class RecruitingCompany(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        self.codename = self.name.replace(" ", "").lower()
+        self.codename = pattern.sub('', self.name).lower()
         return super().save()

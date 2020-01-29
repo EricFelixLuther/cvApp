@@ -14,8 +14,7 @@ class CompanySelectForm(forms.ModelForm):
         if not self.cleaned_data["name"]:
             self.add_error("name", "Name not given.")
         else:
-            codename = self.cleaned_data["name"].replace(" ", "").lower()
-            self.company = self.Meta.model.objects.filter(codename=codename).first()
+            self.company = self.Meta.model.objects.filter(name=self.cleaned_data['name']).first()
             if not self.company:
                 self.add_error("name", "Your company did not contact me for recruitment purposes.")
             else:
