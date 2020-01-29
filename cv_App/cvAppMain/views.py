@@ -63,7 +63,8 @@ class CV_Viewer(View):
     def _get_pdf(self, request, form, context):
         try:
             # Find previously generated file
-            f = open(f'pdfs/{form.company.codename}.pdf', 'rb')
+            if not form.company.lock_pdf:
+                f = open(f'pdfs/{form.company.codename}.pdf', 'rb')
         except IOError:  # If none was generated
             try:  # Render HTML into a file, try generating it
                 html = render_to_string(form.company.document.name, context)

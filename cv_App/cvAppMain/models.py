@@ -56,6 +56,7 @@ class RecruitingCompany(models.Model):
     document = models.ForeignKey(Template, on_delete=models.CASCADE)
     texts = models.ManyToManyField(Text)
     picture = models.ForeignKey(Picture, on_delete=models.SET_NULL, null=True, blank=True)
+    lock_pdf = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
