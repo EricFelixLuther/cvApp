@@ -6,13 +6,6 @@ from dbtemplates.models import Template
 pattern = re.compile('[\W_]+')
 
 
-class BaseData:
-    name = "Krzysztof Maciejczuk"
-    email = "maciejczuk.krzysztof@gmail.com"
-    phone = "796 157 493"
-    github = "https://github.com/EricFelixLuther/"
-
-
 class TextType(models.Model):
     codename = models.CharField(max_length=16)
 
@@ -31,7 +24,7 @@ class Text(models.Model):
     title = models.CharField(max_length=64)
     text = models.TextField()
     text_type = models.ForeignKey(TextType, on_delete=models.CASCADE)
-    language = models.ForeignKey(Language, on_delete=models.CASCADE)
+    language = models.ForeignKey(Language, on_delete=models.CASCADE, null=True, blank=True, default=None)
     markdown = models.BooleanField(default=True)
 
     def __str__(self):

@@ -2,6 +2,7 @@ import os
 import markdown2
 import logging
 
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
@@ -9,7 +10,6 @@ from django.utils.safestring import mark_safe
 from django.views import View
 
 from cvAppMain.forms import CompanySelectForm
-from cvAppMain.models import BaseData
 
 
 logger = logging.getLogger('debug')
@@ -30,11 +30,10 @@ class CV_Viewer(View):
         btn = request.POST.get("submit", False)
         form = self.form(data=request.POST)
         if form.is_valid():
-            context = {
-                "company": form.company,
-                "base_data": BaseData
-            }
-            for each in form.company.texts.filter(language=form.cleaned_data["language"]):
+            context = {"company": form.company}
+            for each in form.company.texts.filter(
+                    Q(language=form.cleaned_data["language"]) |
+                    Q(language__isnull=True)):
                 if each.markdown:
                     context[each.text_type.codename] = mark_safe(markdown2.markdown(each.text, extras=["tables"]))
                 else:
