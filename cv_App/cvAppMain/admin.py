@@ -17,7 +17,10 @@ admin.site.register((
 
 @admin.register(Text)
 class TextAdmin(admin.ModelAdmin):
-    form = TextAdminForm
+    #form = TextAdminForm
+    ordering = ('language__lang', 'text_type__codename', 'markdown')
+    list_display = ('title', 'language', 'text_type', 'markdown')
+    list_filter = ('language', 'text_type', 'markdown')
 
 
 @admin.register(RecruitingCompany)
