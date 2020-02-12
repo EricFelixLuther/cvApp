@@ -1,7 +1,8 @@
 import re
 from django.db import models
 from dbtemplates.models import Template
-
+from django.utils.functional import cached_property
+from django.utils.safestring import mark_safe
 
 pattern = re.compile('[\W_]+')
 
@@ -57,3 +58,11 @@ class RecruitingCompany(models.Model):
     def save(self, *args, **kwargs):
         self.codename = pattern.sub('', self.name).lower()
         return super().save()
+
+    @cached_property
+    def text_titles(self):
+        return mark_safe(
+            ',<br />'.join(
+                [str(text) for text in self.texts.order_by('language__lang', 'text_type__codename')]
+            )
+        )
