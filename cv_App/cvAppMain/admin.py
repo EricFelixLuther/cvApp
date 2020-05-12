@@ -5,10 +5,9 @@ import os
 
 from django.contrib import admin
 
-from cvAppMain.forms import TextAdminForm, RecruitingCompanyAdminForm
+from cvAppMain.forms import RecruitingCompanyAdminForm
 from cvAppMain.models import TextType, Language, Text, RecruitingCompany, Picture
 
-# Register your models here.
 
 admin.site.register((
     TextType,
@@ -23,15 +22,31 @@ class TextAdmin(admin.ModelAdmin):
     ordering = ('language__lang', 'text_type__codename', 'markdown')
     list_display = ('title', 'language', 'text_type', 'markdown')
     list_filter = ('language', 'text_type', 'markdown')
+    search_fields = ('title', 'text')
+    fields = (('title', 'text_type', 'language', 'markdown'), 'text')
 
 
 @admin.register(RecruitingCompany)
 class RecruitingCompany(admin.ModelAdmin):
     form = RecruitingCompanyAdminForm
-    ordering = ('active', 'name')
+    ordering = ('-active', 'name')
     list_display = ('active', 'name', 'codename', 'document', 'picture', 'lock_pdf', 'text_titles')
     list_filter = ('active', 'lock_pdf', 'picture', 'document')
     actions = ['remove_pdfs', 'activate', 'deactivate', 'lock', 'unlock']
+    search_fields = ('name', 'codename')
+    list_display_links = ('active', 'name')
+    fieldsets = (
+        (None, {
+            'fields': (('name', 'codename'), )
+        }),
+        ('Controls', {
+            'fields': (('active', 'lock_pdf'), )
+        }),
+        ('Template settings', {
+            'fields': (('document', 'picture'), )
+        }),
+        (None, {'fields': ('texts', )})
+    )
 
     def remove_pdfs(self, request, queryset):
         removed = []
@@ -68,9 +83,9 @@ class RecruitingCompany(admin.ModelAdmin):
     def _set_lock_pdfs(self, request, queryset, lock):
         rows_updated = queryset.update(lock_pdf=lock)
         if rows_updated == 1:
-            self.message_user(request, f'1 company\'s PDF was {"un if not lock"}locked.')
+            self.message_user(request, f'1 company\'s PDF was {"un" if not lock else ""}locked.')
         else:
-            self.message_user(request, f'{rows_updated} companies\' PDFs were {"un if not lock"}locked.')
+            self.message_user(request, f'{rows_updated} companies\' PDFs were {"un" if not lock else ""}locked.')
 
     def lock(self, request, queryset):
         self._set_lock_pdfs(request, queryset, True)

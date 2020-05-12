@@ -20,5 +20,5 @@ from cvAppMain.views import CV_Viewer
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^', CV_Viewer.as_view()),
+    url(r'^', CV_Viewer.as_view(), name='cv_viewer'),
 ]

@@ -1,18 +1,13 @@
-import os
 import markdown2
-import logging
 
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.views import View
 
 from cvAppMain.forms import CompanySelectForm
-
-
-logger = logging.getLogger('debug')
+from cvAppMain.pdf_logic import get_pdf
 
 
 class CV_Viewer(View):
@@ -40,9 +35,13 @@ class CV_Viewer(View):
                     context[each.text_type.codename] = mark_safe(each.text)
 
             if btn == "get_cv":
-                return self._get_view(request, form, context)
+                return render(
+                    request,
+                    form.company.document.name,
+                    context=context
+                )
             elif btn == "print_cv":
-                return self._get_pdf(request, form, context)
+                return get_pdf(form, context)
             else:
                 return HttpResponse("Bad request!", status=400)
         else:
@@ -51,39 +50,3 @@ class CV_Viewer(View):
                 template_name=self.template_name,
                 context={"form": form}
             )
-
-    def _get_view(self, request, form, context):
-        return render(
-            request,
-            form.company.document.name,
-            context=context
-        )
-
-    def _get_pdf(self, request, form, context):
-        try:
-            if form.company.lock_pdf:
-                # Find previously generated file
-                with open(f'pdfs/{form.company.codename}.pdf', 'rb') as f:
-                    response = HttpResponse(f, content_type='application/pdf')
-            else:
-                response = render_to_pdf(form, context)
-        except FileNotFoundError:  # If none was generated, generate it
-            response = render_to_pdf(form, context)
-
-        return response
-
-def render_to_pdf(form, context):
-    try:  # Render HTML into a file, try generating it
-        html = render_to_string(form.company.document.name, context)
-        with open(f'{form.company.codename}.html', 'w') as f:
-            f.write(str(html))
-
-        os.system(f'wkhtmltopdf {form.company.codename}.html pdfs/{form.company.codename}.pdf')
-        os.remove(f'{form.company.codename}.html')  # Remove HTML, it's redundant now
-
-        with open(f'pdfs/{form.company.codename}.pdf', 'rb') as f:
-            return HttpResponse(f, content_type='application/pdf')
-
-    except Exception as e:
-        logger.error(e)
-        return HttpResponse('Something went wrong while generating PDF! Sorry!')
