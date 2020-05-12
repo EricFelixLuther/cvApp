@@ -41,7 +41,7 @@ class CV_Viewer(View):
                     context=context
                 )
             elif btn == "print_cv":
-                return get_pdf(form, context)
+                return get_pdf(form.company, context)
             else:
                 return HttpResponse("Bad request!", status=400)
         else:

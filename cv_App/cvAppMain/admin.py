@@ -19,7 +19,7 @@ admin.site.register((
 @admin.register(Text)
 class TextAdmin(admin.ModelAdmin):
     #form = TextAdminForm
-    ordering = ('language__lang', 'text_type__codename', 'markdown')
+    ordering = ('language__lang', 'text_type__codename', 'title')
     list_display = ('title', 'language', 'text_type', 'markdown')
     list_filter = ('language', 'text_type', 'markdown')
     search_fields = ('title', 'text')
