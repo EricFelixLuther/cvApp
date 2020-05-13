@@ -1,3 +1,4 @@
+from ckeditor.widgets import CKEditorWidget
 from django import forms
 
 from cvAppMain.models import RecruitingCompany, Language, Text, TextType
@@ -24,10 +25,11 @@ class CompanySelectForm(forms.ModelForm):
 
 
 class TextAdminForm(forms.ModelForm):
+    text = forms.CharField(widget=CKEditorWidget(config_name='advanced'))
+
     class Meta:
         model = Text
         fields = '__all__'
-        widgets = {'text': forms.Textarea(attrs={'width': '100%', 'height': '100%'})}
 
 
 class RecruitingCompanyAdminForm(forms.ModelForm):

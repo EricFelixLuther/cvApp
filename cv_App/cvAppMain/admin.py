@@ -5,7 +5,7 @@ import os
 
 from django.contrib import admin
 
-from cvAppMain.forms import RecruitingCompanyAdminForm
+from cvAppMain.forms import RecruitingCompanyAdminForm, TextAdminForm
 from cvAppMain.models import TextType, Language, Text, RecruitingCompany, Picture
 
 
@@ -18,12 +18,12 @@ admin.site.register((
 
 @admin.register(Text)
 class TextAdmin(admin.ModelAdmin):
-    #form = TextAdminForm
+    form = TextAdminForm
     ordering = ('language__lang', 'text_type__codename', 'title')
-    list_display = ('title', 'language', 'text_type', 'markdown')
-    list_filter = ('language', 'text_type', 'markdown')
+    list_display = ('title', 'language', 'text_type')
+    list_filter = ('language', 'text_type')
     search_fields = ('title', 'text')
-    fields = (('title', 'text_type', 'language', 'markdown'), 'text')
+    fields = (('title', 'text_type', 'language'), 'text')
 
 
 @admin.register(RecruitingCompany)
