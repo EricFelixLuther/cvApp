@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'cvAppMain',
     'dbtemplates',
-    'ckeditor'
+    'tinymce'
 ]
 
 MIDDLEWARE = [
@@ -144,52 +144,4 @@ except ImportError:
     pass
 
 SITE_ID = 1
-
-CKEDITOR_CONFIGS = {
-    'default': {
-        'skin': 'moono'
-    },
-    'advanced': {
-        'skin': 'moono',
-        'toolbar_Advanced': [
-            {'name': 'document', 'items': ['Source', 'Templates']},
-            {'name': 'clipboard', 'items': ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo']},
-            {'name': 'editing', 'items': ['Find', 'Replace', '-', 'SelectAll']},
-            {'name': 'forms',
-             'items': ['Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button', 'ImageButton',
-                       'HiddenField']},
-            {'name': 'insert',
-             'items': ['Image', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak']},
-            {'name': 'links', 'items': ['Link', 'Unlink', 'Anchor']},
-            {'name': 'tools', 'items': ['Preview', 'Maximize', 'ShowBlocks']},
-            {'name': 'about', 'items': ['About']},
-
-            '/',
-            {'name': 'styles', 'items': ['Styles', 'Format', 'Font', 'FontSize']},
-            {'name': 'basicstyles',
-             'items': ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat']},
-            {'name': 'paragraph',
-             'items': ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv', '-',
-                       'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl',
-                       ]},
-            {'name': 'colors', 'items': ['TextColor', 'BGColor']},
-            ],
-        'toolbar': 'Advanced',
-        'width': '1200',
-        'toolbarCanCollapse': True,
-        'tabSpaces': 4,
-        'extraPlugins': ','.join([
-            'div',
-            'autolink',
-            'autoembed',
-            'embedsemantic',
-            'autogrow',
-            'widget',
-            'lineutils',
-            'clipboard',
-            'dialog',
-            'dialogui',
-            'elementspath'
-        ]),
-    }
-}
+DBTEMPLATES_USE_TINYMCE = True
