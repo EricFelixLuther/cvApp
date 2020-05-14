@@ -26,7 +26,6 @@ class CompanySelectForm(forms.ModelForm):
 
 
 class TextAdminForm(forms.ModelForm):
-    # text = forms.CharField(widget=AdminTinyMCE())
     text = forms.CharField(widget=CKEditorWidget(config_name='advanced'))
 
     class Meta:
@@ -38,17 +37,6 @@ class RecruitingCompanyAdminForm(forms.ModelForm):
     class Meta:
         model = RecruitingCompany
         fields = '__all__'
-
-    # class Media:
-    #     css = {'all': ('chosen_v1.8.7/chosen.min.css', 'chosen_v1.8.7/docsupport/prism.css')}
-    #     js = (
-    #         'jquery.min.js',
-    #         'chosen_v1.8.7/chosen.jquery.min.js',
-    #         'chosen_v1.8.7/chosen.proto.min.js',
-    #         'chosen_v1.8.7/docsupport/prism.js',
-    #         'chosen_v1.8.7/docsupport/init.js',
-    #         'recruiting_company.js'
-    #     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

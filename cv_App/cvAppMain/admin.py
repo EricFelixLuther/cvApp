@@ -117,7 +117,7 @@ class RecruitingCompany(admin.ModelAdmin):
 #     extra_js = forms.CharField(widget=forms.Textarea, required=False)
 #     body = forms.CharField(widget=CKEditorWidget(config_name='advanced'), required=False)
 #
-#     extra_screen_css_pattern = "{% block screen_css %}(.*?){% endblock %}"
+#     extra_screen_css_pattern = re.compile("{% block screen_css %}")
 #     extra_print_css_pattern = re.compile("{% block print_css %}(.*?){% endblock %}")
 #     extra_js_pattern = re.compile("{% block extra_js %}(.*?){% endblock %}")
 #     body_pattern = re.compile("{% block content %}(.*?){% endblock %}")
@@ -130,11 +130,11 @@ class RecruitingCompany(admin.ModelAdmin):
 #         super().__init__(*args, **kwargs)
 #
 #         if self.instance.pk:
-#             print(self.instance.content)
-#             extra_screen_css_content = re.findall(self.extra_screen_css_pattern, self.instance.content)
+#             content = self.instance.content
+#             extra_screen_css_content = re.findall(self.extra_screen_css_pattern, content)
 #             print(extra_screen_css_content)
-#             extra_print_css_content = re.findall(self.extra_print_css_pattern, self.instance.content)
-#             extra_js_content = re.findall(self.extra_js_pattern, self.instance.content)
+#             extra_print_css_content = re.findall(self.extra_print_css_pattern, content)
+#             extra_js_content = re.findall(self.extra_js_pattern, content)
 #             body_content = re.findall(self.body_pattern, self.instance.content)
 #
 #             if extra_screen_css_content:
