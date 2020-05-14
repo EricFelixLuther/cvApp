@@ -1,3 +1,4 @@
+from ckeditor.widgets import CKEditorWidget
 from django import forms
 from tinymce.widgets import AdminTinyMCE
 
@@ -25,7 +26,8 @@ class CompanySelectForm(forms.ModelForm):
 
 
 class TextAdminForm(forms.ModelForm):
-    text = forms.CharField(widget=AdminTinyMCE())
+    # text = forms.CharField(widget=AdminTinyMCE())
+    text = forms.CharField(widget=CKEditorWidget(config_name='advanced'))
 
     class Meta:
         model = Text
