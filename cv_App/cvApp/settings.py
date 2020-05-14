@@ -44,8 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'cvAppMain',
     'dbtemplates',
-    'ckeditor',
-    'tinymce'
+    'ckeditor'
 ]
 
 MIDDLEWARE = [
@@ -145,8 +144,6 @@ except ImportError:
     pass
 
 SITE_ID = 1
-# DBTEMPLATES_USE_TINYMCE = True
-
 
 CKEDITOR_CONFIGS = {
     'default': {
