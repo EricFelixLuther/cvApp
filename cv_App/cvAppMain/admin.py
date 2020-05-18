@@ -8,8 +8,10 @@ from ckeditor.widgets import CKEditorWidget
 from dbtemplates.admin import TemplateAdmin, TemplateAdminForm
 from dbtemplates.models import Template
 from django.contrib import admin
+
 from django import forms
-from django.utils.translation import ungettext, ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _
+from simple_history.admin import SimpleHistoryAdmin
 
 from cvAppMain.forms import RecruitingCompanyAdminForm, TextAdminForm
 from cvAppMain.models import TextType, Language, Text, RecruitingCompany, Picture
@@ -23,7 +25,7 @@ admin.site.register((
 
 
 @admin.register(Text)
-class TextAdmin(admin.ModelAdmin):
+class TextAdmin(SimpleHistoryAdmin):
     form = TextAdminForm
     ordering = ('language__lang', 'text_type__codename', 'title')
     list_display = ('title', 'language', 'text_type')

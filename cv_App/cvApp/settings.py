@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'cvAppMain',
     'dbtemplates',
-    'ckeditor'
+    'ckeditor',
+    'simple_history'
 ]
 
 MIDDLEWARE = [
@@ -189,7 +190,8 @@ CKEDITOR_CONFIGS = {
             'clipboard',
             'dialog',
             'dialogui',
-            'elementspath'
+            'elementspath',
+            'markdown'
         ]),
     }
 }
