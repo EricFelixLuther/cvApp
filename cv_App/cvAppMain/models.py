@@ -3,6 +3,7 @@ from django.db import models
 from dbtemplates.models import Template
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
+from simple_history.models import HistoricalRecords
 
 pattern = re.compile('[\W_]+')
 
@@ -27,6 +28,7 @@ class Text(models.Model):
     text_type = models.ForeignKey(TextType, on_delete=models.CASCADE)
     language = models.ForeignKey(Language, on_delete=models.CASCADE, null=True, blank=True, default=None)
     markdown = models.BooleanField(default=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         return "%s: %s (%s)" % (
