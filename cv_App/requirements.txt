@@ -1,9 +1,9 @@
-asgiref==3.2.7
 Django==2.2.12
 django-appconf==1.0.3
+django-ckeditor==5.9.0
 django-dbtemplates==3.0
+django-js-asset==1.2.2
 html5lib==1.0.1
-markdown2==2.3.8
 Pillow==7.1.2
 pkg-resources==0.0.0
 pytz==2019.2

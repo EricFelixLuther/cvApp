@@ -1,5 +1,3 @@
-import markdown2
-
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -29,10 +27,7 @@ class CV_Viewer(View):
             for each in form.company.texts.filter(
                     Q(language=form.cleaned_data["language"]) |
                     Q(language__isnull=True)):
-                if each.markdown:
-                    context[each.text_type.codename] = mark_safe(markdown2.markdown(each.text, extras=["tables"]))
-                else:
-                    context[each.text_type.codename] = mark_safe(each.text)
+                context[each.text_type.codename] = mark_safe(each.text)
 
             if btn == "get_cv":
                 return render(
