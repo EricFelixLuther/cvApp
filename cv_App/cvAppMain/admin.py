@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import os
 
 from django.contrib import admin
+from simple_history.admin import SimpleHistoryAdmin
 
 from cvAppMain.forms import RecruitingCompanyAdminForm
 from cvAppMain.models import TextType, Language, Text, RecruitingCompany, Picture
@@ -17,7 +18,7 @@ admin.site.register((
 
 
 @admin.register(Text)
-class TextAdmin(admin.ModelAdmin):
+class TextAdmin(SimpleHistoryAdmin):
     #form = TextAdminForm
     ordering = ('language__lang', 'text_type__codename', 'title')
     list_display = ('title', 'language', 'text_type', 'markdown')
