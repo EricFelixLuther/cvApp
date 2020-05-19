@@ -62,7 +62,6 @@ class RecruitingCompany(models.Model):
     def save(self, *args, **kwargs):
         if not self.codename:
             self.codename = pattern.sub('', self.name).lower()
-        self.generatedpdf_set.all().delete()
         return super().save()
 
     @cached_property
