@@ -38,17 +38,14 @@ class TextAdmin(SimpleHistoryAdmin):
 class RecruitingCompany(admin.ModelAdmin):
     form = RecruitingCompanyAdminForm
     ordering = ('-active', 'name')
-    list_display = ('active', 'name', 'codename', 'document', 'picture', 'lock_pdf', 'text_titles')
-    list_filter = ('active', 'lock_pdf', 'picture', 'document')
-    actions = ['remove_pdfs', 'activate', 'deactivate', 'lock', 'unlock']
+    list_display = ('active', 'name', 'codename', 'document', 'picture', 'text_titles')
+    list_filter = ('active', 'picture', 'document')
+    actions = ['remove_pdfs', 'activate', 'deactivate']
     search_fields = ('name', 'codename')
     list_display_links = ('active', 'name')
     fieldsets = (
         (None, {
-            'fields': (('name', 'codename'), )
-        }),
-        ('Controls', {
-            'fields': (('active', 'lock_pdf'), )
+            'fields': (('name', 'codename', 'active'), )
         }),
         ('Template settings', {
             'fields': (('document', 'picture'), )
@@ -87,23 +84,6 @@ class RecruitingCompany(admin.ModelAdmin):
         self._set_active(request, queryset, False)
 
     deactivate.short_description = "Mark recruitation process as finished"
-
-    def _set_lock_pdfs(self, request, queryset, lock):
-        rows_updated = queryset.update(lock_pdf=lock)
-        if rows_updated == 1:
-            self.message_user(request, f'1 company\'s PDF was {"un" if not lock else ""}locked.')
-        else:
-            self.message_user(request, f'{rows_updated} companies\' PDFs were {"un" if not lock else ""}locked.')
-
-    def lock(self, request, queryset):
-        self._set_lock_pdfs(request, queryset, True)
-
-    lock.short_description = 'Lock PDF generation'
-
-    def unlock(self, request, queryset):
-        self._set_lock_pdfs(request, queryset, False)
-
-    unlock.short_description = 'Unlock PDF generation'
 
 
 # Updates on dbtemplates

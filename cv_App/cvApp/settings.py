@@ -137,9 +137,10 @@ STATIC_URL = '/static/'
 STATIC_ROOT = "/code/cv_App/static"
 
 try:
-    from local_settings import *
+    from .local_settings import *
 except ImportError:
     pass
+
 
 CKEDITOR_CONFIGS = {
     'default': {

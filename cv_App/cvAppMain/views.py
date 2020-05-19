@@ -1,11 +1,9 @@
-from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.utils.safestring import mark_safe
 from django.views import View
 
 from cvAppMain.forms import CompanySelectForm
-from cvAppMain.pdf_logic import get_pdf
+from cvAppMain.pdf_logic import get_pdf, make_context
 
 
 class CV_Viewer(View):
@@ -23,20 +21,14 @@ class CV_Viewer(View):
         btn = request.POST.get("submit", False)
         form = self.form(data=request.POST)
         if form.is_valid():
-            context = {"company": form.company}
-            for each in form.company.texts.filter(
-                    Q(language=form.cleaned_data["language"]) |
-                    Q(language__isnull=True)):
-                context[each.text_type.codename] = mark_safe(each.text)
-
             if btn == "get_cv":
                 return render(
                     request,
                     form.company.document.name,
-                    context=context
+                    context=make_context(form.company, form.cleaned_data["language"])
                 )
             elif btn == "print_cv":
-                return get_pdf(form.company, context)
+                return get_pdf(form.company, form.cleaned_data["language"])
             else:
                 return HttpResponse("Bad request!", status=400)
         else:
