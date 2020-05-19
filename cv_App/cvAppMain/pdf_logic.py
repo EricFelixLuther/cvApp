@@ -35,7 +35,7 @@ def render_to_pdf(company, language):
     """Uses WKHTMLTOPDF to generate a PDF from an HTML file."""
     microseconds = datetime.now().microsecond
     temp_html = f'{microseconds}.html'
-    temp_pdf = company.pdf_name
+    temp_pdf = f'pdfs/{company.codename}_{language.lang}.pdf'
 
     try:
         # First, create an HTML file
@@ -45,15 +45,17 @@ def render_to_pdf(company, language):
             f.write(str(html))
         # Launch WKHTMLtoPDF to generate PDF
         os.system(f'wkhtmltopdf {temp_html} {temp_pdf}')
+        # Remove html as it's no longer necessary
+        os.remove(temp_html)
         # Save PDF into DB
         saved_pdf = GeneratedPDF.objects.create(company=company, language=language, pdf=temp_pdf)
-        # Remove both files as they're no longer necessary
-        os.remove(temp_html)
-        os.remove(temp_pdf)
 
         return saved_pdf.as_response()
     except Exception as e:
-        os.remove(temp_html)
-        os.remove(temp_pdf)
+        try:
+            os.remove(temp_html)
+        except OSError:
+            pass
+
         logger.error(e)
         return HttpResponse('Something went wrong while generating PDF! Sorry!')

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import os
 import re
 
 from ckeditor.widgets import CKEditorWidget
@@ -14,8 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 from simple_history.admin import SimpleHistoryAdmin
 
 from cvAppMain.forms import RecruitingCompanyAdminForm, TextAdminForm
-from cvAppMain.models import TextType, Language, Text, RecruitingCompany, Picture
-
+from cvAppMain.models import TextType, Language, Text, RecruitingCompany, Picture, GeneratedPDF
 
 admin.site.register((
     TextType,
@@ -54,18 +52,16 @@ class RecruitingCompany(admin.ModelAdmin):
     )
 
     def remove_pdfs(self, request, queryset):
-        removed = []
-        for obj in queryset:
-            filepath = f'pdfs/{obj.codename}.pdf'
-            if os.path.exists(filepath):
-                os.remove(filepath)
-                removed.append(obj.name)
-        if removed:
-            message = f'{len(removed)} PDF file{"" if len(removed) == 1 else "s"} removed: {", ".join(removed)}'
+        files = 0
+        for each in GeneratedPDF.objects.filter(company__in=queryset):
+            each.delete()
+            files += 1
+        if files == 1:
+            self.message_user(request, '1 cached file was deleted.')
+        elif files > 1:
+            self.message_user(request, f'{files} cached files were deleted.')
         else:
-            message = 'No PDF files to remove.'
-        self.message_user(request, message)
-
+            self.message_user(request, 'No cached files were deleted.')
     remove_pdfs.short_description = "Remove generated PDF files"
 
     def _set_active(self, request, queryset, active):
@@ -77,12 +73,10 @@ class RecruitingCompany(admin.ModelAdmin):
 
     def activate(self, request, queryset):
         self._set_active(request, queryset, True)
-
     activate.short_description = "Mark recruitation process as active"
 
     def deactivate(self, request, queryset):
         self._set_active(request, queryset, False)
-
     deactivate.short_description = "Mark recruitation process as finished"
 
 

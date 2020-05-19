@@ -1,6 +1,8 @@
+import os
 import re
 from django.db import models
 from dbtemplates.models import Template
+from django.dispatch import receiver
 from django.http import HttpResponse
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
@@ -75,7 +77,7 @@ class RecruitingCompany(models.Model):
 class GeneratedPDF(models.Model):
     company = models.ForeignKey(RecruitingCompany, on_delete=models.CASCADE)
     language = models.ForeignKey(Language, on_delete=models.CASCADE)
-    pdf = models.FileField(upload_to='pdfs')
+    pdf = models.FileField(upload_to='pdfs/')
 
     class Meta:
         unique_together = ('company', 'language')
@@ -87,3 +89,23 @@ class GeneratedPDF(models.Model):
     def as_response(self):
         with open(self.pdf_name, 'rb') as f:
             return HttpResponse(f, content_type='application/pdf')
+
+
+@receiver(models.signals.post_delete, sender=GeneratedPDF)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    try:
+        os.remove(instance.pdf_name)
+    except OSError:
+        pass
+
+
+@receiver(models.signals.pre_save, sender=RecruitingCompany)
+def auto_delete_pdfs_on_update(sender, instance, **kwargs):
+    """
+    Clear generated PDFs when company is updated.
+    """
+    if not instance.pk:
+        return False
+
+    for each in instance.generatedpdf_set.all():
+        each.delete()
