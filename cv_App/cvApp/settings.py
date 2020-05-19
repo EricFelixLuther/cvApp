@@ -23,12 +23,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'y=&4)8kj(0qg67@#w)vmz%+c7rdp*u4cc@wu!sbcx52ma=*ptk'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-if DEBUG:
-    ALLOWED_HOSTS = ["*"]
-else:
-    ALLOWED_HOSTS = ["77.55.236.168", "maciejczuk.pl", "www.maciejczuk.pl", "66.249.75.156"]
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -143,8 +140,6 @@ try:
     from local_settings import *
 except ImportError:
     pass
-
-SITE_ID = 1
 
 CKEDITOR_CONFIGS = {
     'default': {
