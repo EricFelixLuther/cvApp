@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'cvAppMain',
     'dbtemplates',
     'ckeditor',
+    'django_ace',
     'simple_history'
 ]
 
@@ -60,7 +61,7 @@ ROOT_URLCONF = 'cvApp.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
+        'DIRS': ['templates', 'cv_App/templates'],
         'APP_DIRS': False,
         'OPTIONS': {
             'context_processors': [
@@ -115,6 +116,26 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/code/cv_App/debug.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
@@ -136,10 +157,7 @@ STATIC_URL = '/static/'
 # STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 STATIC_ROOT = "/code/cv_App/static"
 
-try:
-    from .local_settings import *
-except ImportError:
-    pass
+SITE_ID = 2
 
 
 CKEDITOR_CONFIGS = {
@@ -191,3 +209,9 @@ CKEDITOR_CONFIGS = {
         ]),
     }
 }
+
+
+try:
+    from .local_settings import *
+except ImportError:
+    pass
