@@ -1,5 +1,6 @@
 import os
 import re
+from django.conf import settings
 from django.db import models
 from dbtemplates.models import Template
 from django.dispatch import receiver
@@ -83,7 +84,7 @@ class GeneratedPDF(models.Model):
 
     @property
     def pdf_name(self):
-        return f'pdfs/{self.company.codename}_{self.language.lang}.pdf'
+        return f'{settings.MEDIA_ROOT}pdfs/{self.company.codename}_{self.language.lang}.pdf'
 
     def as_response(self):
         with open(self.pdf_name, 'rb') as f:

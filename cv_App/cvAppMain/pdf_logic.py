@@ -2,6 +2,7 @@ import logging
 import os
 from datetime import datetime
 
+from django.conf import settings
 from django.db.models import Q
 from django.http import HttpResponse
 from django.template.loader import render_to_string
@@ -35,7 +36,7 @@ def render_to_pdf(company, language):
     """Uses WKHTMLTOPDF to generate a PDF from an HTML file."""
     microseconds = datetime.now().microsecond
     temp_html = f'{microseconds}.html'
-    temp_pdf = f'pdfs/{company.codename}_{language.lang}.pdf'
+    temp_pdf = f'{settings.MEDIA_ROOT}pdfs/{company.codename}_{language.lang}.pdf'
 
     try:
         # First, create an HTML file
