@@ -123,7 +123,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': '/code/cv_App/debug.log',
+            'filename': '/code/cv_App/log/debug.log',
         },
     },
     'loggers': {
