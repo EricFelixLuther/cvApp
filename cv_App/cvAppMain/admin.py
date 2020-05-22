@@ -10,6 +10,7 @@ from django.contrib import admin
 
 from django import forms
 from django.utils.translation import ugettext_lazy as _
+from django_ace import AceWidget
 from simple_history.admin import SimpleHistoryAdmin
 
 from cvAppMain.forms import RecruitingCompanyAdminForm, TextAdminForm
@@ -86,11 +87,21 @@ class RecruitmentProcessAdmin(admin.ModelAdmin):
 admin.site.unregister(Template)
 
 
+def get_ace_css_widget():
+    return AceWidget(mode='css', theme='twilight', width="580px",
+        height="350px", tabsize=2)
+
+
+def get_ace_js_widget():
+    return AceWidget(mode='javascript', theme='twilight', width="1200px",
+                     height="500px", tabsize=2)
+
+
 class UpdatedDBTemplateAdminForm(TemplateAdminForm):
-    extra_screen_css = forms.CharField(widget=forms.Textarea, required=False)
-    extra_print_css = forms.CharField(widget=forms.Textarea, required=False)
-    extra_js = forms.CharField(widget=forms.Textarea, required=False)
     body = forms.CharField(widget=CKEditorWidget(config_name='advanced'), required=False)
+    extra_screen_css = forms.CharField(widget=get_ace_css_widget(), required=False)
+    extra_print_css = forms.CharField(widget=get_ace_css_widget(), required=False)
+    extra_js = forms.CharField(widget=get_ace_js_widget(), required=False)
 
     extra_screen_css_pattern = re.compile("{% block screen_css %}(.*?){% endblock %}", flags=re.DOTALL)
     extra_print_css_pattern = re.compile("{% block print_css %}(.*?){% endblock %}", flags=re.DOTALL)
@@ -144,11 +155,20 @@ class UpdatedDBTemplate(TemplateAdmin):
     form = UpdatedDBTemplateAdminForm
     fieldsets = (
         (None, {
-            'fields': ('name', 'extra_screen_css', 'extra_print_css', 'extra_js', 'body'),
+            'fields': ('name', 'body'),
             'classes': ('monospace',),
+        }),
+        ('CSS', {
+            'fields': (('extra_screen_css', 'extra_print_css'),),
+            'classes': ('monospace', 'collapse'),
+        }),
+        ('JavaScript', {
+            'fields': ('extra_js',),
+            'classes': ('monospace', 'collapse'),
         }),
         (_('Advanced'), {
             'fields': (('sites'),),
+            'classes': ('collapse',),
         }),
         (_('Date/time'), {
             'fields': (('creation_date', 'last_changed'),),
