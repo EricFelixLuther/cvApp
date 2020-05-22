@@ -49,16 +49,60 @@ class Picture(models.Model):
         return self.name
 
 
+class ContactPerson(models.Model):
+    first_name = models.CharField(max_length=64)
+    last_name = models.CharField(max_length=64)
+    phone = models.CharField(max_length=64)
+    email = models.CharField(max_length=64)
+    notes = models.CharField(max_length=128)
+    history = HistoricalRecords()
+
+
+class RecruitmentAgency(models.Model):
+    name = models.CharField(max_length=64)
+    contact_persons = models.ManyToManyField(ContactPerson)
+    notes = models.CharField(max_length=255)
+    history = HistoricalRecords()
+
+
 class RecruitingCompany(models.Model):
     name = models.CharField(max_length=64)
+    contact_persons = models.ManyToManyField(ContactPerson)
+    location = models.CharField(max_length=64, blank=True)  # TODO: geolocation
+    notes = models.CharField(max_length=128, blank=True)
+    history = HistoricalRecords()
+
+
+class Question(models.Model):
+    text = models.CharField(max_length=64)
+
+
+class Answer(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    text = models.CharField(max_length=64)
+
+
+class Benefit(models.Model):
+    text = models.CharField(max_length=32)
+
+
+class RecruitmentProcess(models.Model):
+    position = models.CharField(max_length=64)
+    recruiting_company = models.ForeignKey(RecruitingCompany, on_delete=models.CASCADE)
+    recruiting_agency = models.ForeignKey(RecruitmentAgency, on_delete=models.CASCADE, blank=True, null=True)
     codename = models.CharField(max_length=64, blank=True)
     active = models.BooleanField(default=True)
+    fork = models.CharField(max_length=16, blank=True)
+    my_questions = models.ManyToManyField(Question)
+    their_answers = models.ManyToManyField(Answer)
+    benefits = models.ManyToManyField(Benefit)
+    notes = models.CharField(max_length=255, blank=True)
     document = models.ForeignKey(Template, on_delete=models.CASCADE)
     texts = models.ManyToManyField(Text)
     picture = models.ForeignKey(Picture, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return f'{self.recruiting_company.name} - {self.position} ({self.fork})'
 
     def save(self, *args, **kwargs):
         if not self.codename:
@@ -74,8 +118,14 @@ class RecruitingCompany(models.Model):
         )
 
 
+class ProcessLog(models.Model):
+    process = models.ForeignKey(RecruitmentProcess, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now=True)
+    log = models.CharField(max_length=128)
+
+
 class GeneratedPDF(models.Model):
-    company = models.ForeignKey(RecruitingCompany, on_delete=models.CASCADE)
+    company = models.ForeignKey(RecruitmentProcess, on_delete=models.CASCADE)
     language = models.ForeignKey(Language, on_delete=models.CASCADE)
     pdf = models.FileField(upload_to='pdfs/')
 
@@ -99,7 +149,7 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
         pass
 
 
-@receiver(models.signals.pre_save, sender=RecruitingCompany)
+@receiver(models.signals.pre_save, sender=RecruitmentProcess)
 def auto_delete_pdfs_on_update(sender, instance, **kwargs):
     """
     Clear generated PDFs when company is updated.

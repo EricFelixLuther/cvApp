@@ -13,7 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 from simple_history.admin import SimpleHistoryAdmin
 
 from cvAppMain.forms import RecruitingCompanyAdminForm, TextAdminForm
-from cvAppMain.models import TextType, Language, Text, RecruitingCompany, Picture, GeneratedPDF
+from cvAppMain.models import TextType, Language, Text, RecruitmentProcess, Picture, GeneratedPDF
 
 admin.site.register((
     TextType,
@@ -32,10 +32,10 @@ class TextAdmin(SimpleHistoryAdmin):
     fields = (('title', 'text_type', 'language'), 'text')
 
 
-@admin.register(RecruitingCompany)
-class RecruitingCompany(admin.ModelAdmin):
+@admin.register(RecruitmentProcess)
+class RecruitmentProcessAdmin(admin.ModelAdmin):
     form = RecruitingCompanyAdminForm
-    ordering = ('-active', 'name')
+    ordering = ('-active', 'recruiting_company__name')
     list_display = ('active', 'name', 'codename', 'document', 'picture', 'text_titles')
     list_filter = ('active', 'picture', 'document')
     actions = ['remove_pdfs', 'activate', 'deactivate']

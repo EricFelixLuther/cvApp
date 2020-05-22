@@ -1,15 +1,15 @@
 from ckeditor.widgets import CKEditorWidget
 from django import forms
 
-from cvAppMain.models import RecruitingCompany, Language, Text, TextType
+from cvAppMain.models import RecruitmentProcess, Language, Text, TextType
 
 
 class CompanySelectForm(forms.ModelForm):
     language = forms.ModelChoiceField(queryset=Language.objects.all(),
                                       required=True)
     class Meta:
-        model = RecruitingCompany
-        fields = ["name"]
+        model = RecruitmentProcess
+        fields = ["codename"]
 
     def clean(self):
         if not self.cleaned_data["name"]:
@@ -34,7 +34,7 @@ class TextAdminForm(forms.ModelForm):
 
 class RecruitingCompanyAdminForm(forms.ModelForm):
     class Meta:
-        model = RecruitingCompany
+        model = RecruitmentProcess
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
