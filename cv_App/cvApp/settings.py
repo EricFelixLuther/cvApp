@@ -204,8 +204,7 @@ CKEDITOR_CONFIGS = {
             'clipboard',
             'dialog',
             'dialogui',
-            'elementspath',
-            'markdown'
+            'elementspath'
         ]),
     }
 }

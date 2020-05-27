@@ -57,12 +57,18 @@ class ContactPerson(models.Model):
     notes = models.CharField(max_length=128)
     history = HistoricalRecords()
 
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}'
+
 
 class RecruitmentAgency(models.Model):
     name = models.CharField(max_length=64)
     contact_persons = models.ManyToManyField(ContactPerson)
     notes = models.CharField(max_length=255)
     history = HistoricalRecords()
+
+    def __str__(self):
+        return self.name
 
 
 class RecruitingCompany(models.Model):
@@ -72,37 +78,51 @@ class RecruitingCompany(models.Model):
     notes = models.CharField(max_length=128, blank=True)
     history = HistoricalRecords()
 
+    def __str__(self):
+        return self.name
+
 
 class Question(models.Model):
     text = models.CharField(max_length=64)
+
+    def __str__(self):
+        return self.text
 
 
 class Answer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     text = models.CharField(max_length=64)
 
+    def __str__(self):
+        return f'{self.question.text}: {self.text}'
+
 
 class Benefit(models.Model):
     text = models.CharField(max_length=32)
 
+    def __str__(self):
+        return self.text
+
 
 class RecruitmentProcess(models.Model):
     position = models.CharField(max_length=64)
-    recruiting_company = models.ForeignKey(RecruitingCompany, on_delete=models.CASCADE)
-    recruiting_agency = models.ForeignKey(RecruitmentAgency, on_delete=models.CASCADE, blank=True, null=True)
+    recruiting_company = models.ForeignKey(RecruitingCompany, on_delete=models.CASCADE,
+                                           null=True)
+    recruiting_agency = models.ForeignKey(RecruitmentAgency, on_delete=models.CASCADE,
+                                          blank=True, null=True)
     codename = models.CharField(max_length=64, blank=True)
     active = models.BooleanField(default=True)
     fork = models.CharField(max_length=16, blank=True)
-    my_questions = models.ManyToManyField(Question)
-    their_answers = models.ManyToManyField(Answer)
-    benefits = models.ManyToManyField(Benefit)
+    my_questions = models.ManyToManyField(Question, blank=True)
+    their_answers = models.ManyToManyField(Answer, blank=True)
+    benefits = models.ManyToManyField(Benefit, blank=True)
     notes = models.CharField(max_length=255, blank=True)
-    document = models.ForeignKey(Template, on_delete=models.CASCADE)
-    texts = models.ManyToManyField(Text)
+    document = models.ForeignKey(Template, on_delete=models.CASCADE, blank=True)
+    texts = models.ManyToManyField(Text, blank=True)
     picture = models.ForeignKey(Picture, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return f'{self.recruiting_company.name} - {self.position} ({self.fork})'
+        return f'{self.recruiting_company} - {self.position} ({self.fork})'
 
     def save(self, *args, **kwargs):
         if not self.codename:
@@ -123,6 +143,8 @@ class ProcessLog(models.Model):
     timestamp = models.DateTimeField(auto_now=True)
     log = models.CharField(max_length=128)
 
+    def __str__(self):
+        return f'{self.timestamp.strftime("%Y-%m-%d %H:%M")}'
 
 class GeneratedPDF(models.Model):
     company = models.ForeignKey(RecruitmentProcess, on_delete=models.CASCADE)
@@ -141,21 +163,21 @@ class GeneratedPDF(models.Model):
             return HttpResponse(f, content_type='application/pdf')
 
 
-@receiver(models.signals.post_delete, sender=GeneratedPDF)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
-    try:
-        os.remove(instance.pdf_name)
-    except OSError:
-        pass
-
-
-@receiver(models.signals.pre_save, sender=RecruitmentProcess)
-def auto_delete_pdfs_on_update(sender, instance, **kwargs):
-    """
-    Clear generated PDFs when company is updated.
-    """
-    if not instance.pk:
-        return False
-
-    for each in instance.generatedpdf_set.all():
-        each.delete()
+# @receiver(models.signals.post_delete, sender=GeneratedPDF)
+# def auto_delete_file_on_delete(sender, instance, **kwargs):
+#     try:
+#         os.remove(instance.pdf_name)
+#     except OSError:
+#         pass
+#
+#
+# @receiver(models.signals.pre_save, sender=RecruitmentProcess)
+# def auto_delete_pdfs_on_update(sender, instance, **kwargs):
+#     """
+#     Clear generated PDFs when company is updated.
+#     """
+#     if not instance.pk:
+#         return False
+#
+#     for each in instance.generatedpdf_set.all():
+#         each.delete()

@@ -1,7 +1,7 @@
 from ckeditor.widgets import CKEditorWidget
 from django import forms
 
-from cvAppMain.models import RecruitmentProcess, Language, Text, TextType
+from cvAppMain.models import RecruitmentProcess, Language, Text, TextType, ProcessLog, Answer
 
 
 class CompanySelectForm(forms.ModelForm):
@@ -32,10 +32,11 @@ class TextAdminForm(forms.ModelForm):
         fields = '__all__'
 
 
-class RecruitingCompanyAdminForm(forms.ModelForm):
+class RecruitmentProcessAdminForm(forms.ModelForm):
     class Meta:
         model = RecruitmentProcess
         fields = '__all__'
+        widgets = {'notes': CKEditorWidget(config_name='default')}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -45,3 +46,30 @@ class RecruitingCompanyAdminForm(forms.ModelForm):
             ]] for text_type in TextType.objects.all()
         ]
         self.fields['texts'].choices = choices
+
+
+class ProcessLogAdminForm(forms.ModelForm):
+    class Meta:
+        model = ProcessLog
+        fields = '__all__'
+        #widgets = {'log': CKEditorWidget(config_name='default')}
+
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     if self.instance and self.instance.pk:
+    #         self.fields['log'].widget = forms.HiddenInput()
+    #     else:
+    #         self.fields['log'].widget = CKEditorWidget(config_name='default')
+
+
+class AnswerFormset(forms.BaseModelFormSet):
+    model = Answer
+    #
+    # def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None,
+    #              queryset=None, *, initial=None, **kwargs):
+    #     self.queryset = queryset
+    #     self.initial_extra = initial
+    #     super().__init__(**{'data': data, 'files': files, 'auto_id': auto_id, 'prefix': prefix, **kwargs})
+    #
+    # def get_queryset(self):
+    #     return super().get_queryset()
