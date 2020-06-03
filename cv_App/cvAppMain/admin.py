@@ -44,11 +44,11 @@ class ProcessLogAdminInline(admin.StackedInline):
     model = ProcessLog
     extra = 1
     form = ProcessLogAdminForm
-    template = 'log_admin_form.html'
+    # template = 'log_admin_form.html'
 
 
 class AnswerAdminInline(admin.StackedInline):
-    model = RecruitmentProcess.their_answers.through
+    model = Answer
     extra = 0
     verbose_name = 'Recruiter answers'
     #

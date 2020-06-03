@@ -52,6 +52,7 @@ class ProcessLogAdminForm(forms.ModelForm):
     class Meta:
         model = ProcessLog
         fields = '__all__'
+        widgets = {'log': forms.Textarea()}
         #widgets = {'log': CKEditorWidget(config_name='default')}
 
     # def __init__(self, *args, **kwargs):
