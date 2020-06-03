@@ -1,4 +1,5 @@
 Django==2.2.12
+django-ace==1.0.7
 django-appconf==1.0.3
 django-ckeditor==5.9.0
 django-dbtemplates==3.0
