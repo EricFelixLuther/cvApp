@@ -20,7 +20,9 @@ class CompanySelectForm(forms.ModelForm):
                 self.add_error("name", "Your company did not contact me for recruitment purposes.")
             else:
                 if not self.company.active:
-                    self.add_error("name", "Your company does not have access to my CV anymore. If you wish to see it, again, please contact me again.")
+                    self.add_error("name",
+                                   "Your company does not have access to my CV anymore. "
+                                   "If you wish to see it, please contact me again.")
         return self.cleaned_data
 
 
