@@ -43,6 +43,7 @@ class RecruitmentProcessAdminForm(forms.ModelForm):
         self.fields['texts'].choices = choices
 
     def clean(self):
+        """Make sure there is only one active recruitation process with selected codename"""
         if self.instance.pk and\
                 self.cleaned_data['active'] and\
                 self.Meta.model.objects.filter(
