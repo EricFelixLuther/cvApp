@@ -144,7 +144,7 @@ class ProcessLog(models.Model):
     log = models.CharField(max_length=128)
 
     def __str__(self):
-        return f'{self.timestamp.strftime("%Y-%m-%d %H:%M")}'
+        return self.timestamp.strftime('%Y-%m-%d %H:%M')
 
 
 class GeneratedPDF(models.Model):

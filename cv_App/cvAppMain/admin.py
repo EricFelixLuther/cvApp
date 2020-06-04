@@ -42,9 +42,12 @@ class TextAdmin(SimpleHistoryAdmin):
 class ProcessLogAdminInlineView(admin.StackedInline):
     model = ProcessLog
     extra = 0
-    readonly_fields = ('log',)
+    readonly_fields = ('log', )
 
     def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
         return False
 
 
@@ -67,6 +70,7 @@ class GeneratedPDFInlineViewOnly(admin.StackedInline):
     model = GeneratedPDF
     extra = 0
     readonly_fields = ('process', 'language', 'pdf')
+    verbose_name = "Cached PDF file"
 
     def has_change_permission(self, request, obj=None):
         return False
@@ -105,6 +109,8 @@ class RecruitmentProcessAdmin(admin.ModelAdmin):
     inlines = (ProcessLogAdminInlineView, ProcessLogAdminInlineAdd,
                AnswerAdminInline, GeneratedPDFInlineViewOnly)
 
+    save_as = True
+
     def remove_pdfs(self, request, queryset):
         files = 0
         for each in GeneratedPDF.objects.filter(process__in=queryset):
@@ -139,8 +145,9 @@ class RecruitmentProcessAdmin(admin.ModelAdmin):
         self._set_active(request, queryset, False)
     deactivate.short_description = 'Mark recruitation process as finished'
 
-
-# Updates on dbtemplates
+##############################
+### Updates on dbtemplates ###
+##############################
 
 
 admin.site.unregister(Template)

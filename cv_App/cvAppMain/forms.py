@@ -8,6 +8,7 @@ from cvAppMain.models import RecruitmentProcess, Language, Text, TextType, Proce
 class CompanySelectForm(forms.ModelForm):
     language = forms.ModelChoiceField(queryset=Language.objects.all(),
                                       required=True)
+
     class Meta:
         model = RecruitmentProcess
         fields = ["codename"]
@@ -59,17 +60,7 @@ class ProcessLogAdminForm(forms.ModelForm):
         model = ProcessLog
         fields = '__all__'
         widgets = {'log': forms.Textarea()}
-        #widgets = {'log': CKEditorWidget(config_name='default')}
 
 
 class AnswerFormset(forms.BaseModelFormSet):
     model = Answer
-    #
-    # def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None,
-    #              queryset=None, *, initial=None, **kwargs):
-    #     self.queryset = queryset
-    #     self.initial_extra = initial
-    #     super().__init__(**{'data': data, 'files': files, 'auto_id': auto_id, 'prefix': prefix, **kwargs})
-    #
-    # def get_queryset(self):
-    #     return super().get_queryset()
