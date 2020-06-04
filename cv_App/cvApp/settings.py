@@ -209,6 +209,9 @@ CKEDITOR_CONFIGS = {
     }
 }
 
+PROTOCOL = 'https://'
+HOST = ''
+
 
 try:
     from .local_settings import *

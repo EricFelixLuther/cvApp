@@ -25,8 +25,7 @@ admin.site.register((
     RecruitmentAgency,
     RecruitingCompany,
     Question,
-    Benefit,
-    Answer
+    Benefit
 ))
 
 
@@ -40,27 +39,40 @@ class TextAdmin(SimpleHistoryAdmin):
     fields = (('title', 'text_type', 'language'), 'text')
 
 
-class ProcessLogAdminInline(admin.StackedInline):
+class ProcessLogAdminInlineView(admin.StackedInline):
+    model = ProcessLog
+    extra = 0
+    readonly_fields = ('log',)
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+class ProcessLogAdminInlineAdd(admin.StackedInline):
     model = ProcessLog
     extra = 1
     form = ProcessLogAdminForm
-    # template = 'log_admin_form.html'
+
+    def has_view_or_change_permission(self, request, obj=None):
+        return False
 
 
 class AnswerAdminInline(admin.StackedInline):
     model = Answer
     extra = 0
-    verbose_name = 'Recruiter answers'
-    #
-    # def get_formset(self, request, obj=None, **kwargs):
-    #     queryset = obj.their_answers.all()
-    #     initial = obj.my_questions.exclude(
-    #         id__in=queryset.values_list('pk', flat=True)
-    #     ).values()
-    #     return super().get_formset(request, obj,
-    #                                queryset=queryset,
-    #                                initial=initial
-    #                                )
+    verbose_name = 'Recruiter answer'
+
+
+class GeneratedPDFInlineViewOnly(admin.StackedInline):
+    model = GeneratedPDF
+    extra = 0
+    readonly_fields = ('process', 'language', 'pdf')
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(RecruitmentProcess)
@@ -90,11 +102,12 @@ class RecruitmentProcessAdmin(admin.ModelAdmin):
         })
     )
 
-    inlines = (ProcessLogAdminInline, AnswerAdminInline)
+    inlines = (ProcessLogAdminInlineView, ProcessLogAdminInlineAdd,
+               AnswerAdminInline, GeneratedPDFInlineViewOnly)
 
     def remove_pdfs(self, request, queryset):
         files = 0
-        for each in GeneratedPDF.objects.filter(company__in=queryset):
+        for each in GeneratedPDF.objects.filter(process__in=queryset):
             each.delete()
             files += 1
         if files == 1:

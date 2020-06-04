@@ -1,6 +1,6 @@
 import os
 import re
-from django.conf import settings
+
 from django.db import models
 from dbtemplates.models import Template
 from django.dispatch import receiver
@@ -148,37 +148,44 @@ class ProcessLog(models.Model):
 
 
 class GeneratedPDF(models.Model):
-    company = models.ForeignKey(RecruitmentProcess, on_delete=models.CASCADE)
+    process = models.ForeignKey(RecruitmentProcess, on_delete=models.CASCADE)
     language = models.ForeignKey(Language, on_delete=models.CASCADE)
     pdf = models.FileField(upload_to='pdfs/')
 
     class Meta:
-        unique_together = ('company', 'language')
-
-    @property
-    def pdf_name(self):
-        return f'{settings.MEDIA_ROOT}pdfs/{self.company.codename}_{self.language.lang}.pdf'
+        unique_together = ('process', 'language')
 
     def as_response(self):
-        with open(self.pdf_name, 'rb') as f:
-            return HttpResponse(f, content_type='application/pdf')
+        return HttpResponse(self.pdf, content_type='application/pdf')
+
+    def __str__(self):
+        return f'{self.process} / {self.language}'
 
 
-# @receiver(models.signals.post_delete, sender=GeneratedPDF)
-# def auto_delete_file_on_delete(sender, instance, **kwargs):
-#     try:
-#         os.remove(instance.pdf_name)
-#     except OSError:
-#         pass
-#
-#
-# @receiver(models.signals.pre_save, sender=RecruitmentProcess)
-# def auto_delete_pdfs_on_update(sender, instance, **kwargs):
-#     """
-#     Clear generated PDFs when company is updated.
-#     """
-#     if not instance.pk:
-#         return False
-#
-#     for each in instance.generatedpdf_set.all():
-#         each.delete()
+@receiver(models.signals.post_delete, sender=GeneratedPDF)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    try:
+        os.remove(instance.pdf.path)
+    except OSError:
+        pass
+
+
+@receiver(models.signals.pre_save, sender=RecruitmentProcess)
+def auto_delete_pdfs_on_update(sender, instance, **kwargs):
+    """
+    Clear generated PDFs when recruiting process is updated.
+    """
+    if not instance.pk:
+        return False
+
+    for pdf in instance.generatedpdf_set.all():
+        pdf.delete()
+
+
+@receiver(models.signals.post_delete, sender=RecruitmentProcess)
+def auto_delete_pdfs_on_delete(sender, instance, **kwargs):
+    """
+    Clear generated PDFs when recruiting process is deleted.
+    """
+    for pdf in instance.generatedpdf_set.all():
+        pdf.delete()

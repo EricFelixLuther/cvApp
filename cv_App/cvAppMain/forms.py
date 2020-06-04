@@ -1,5 +1,6 @@
 from ckeditor.widgets import CKEditorWidget
 from django import forms
+from django.utils.translation import gettext as _
 
 from cvAppMain.models import RecruitmentProcess, Language, Text, TextType, ProcessLog, Answer
 
@@ -12,17 +13,8 @@ class CompanySelectForm(forms.ModelForm):
         fields = ["codename"]
 
     def clean(self):
-        if not self.cleaned_data["name"]:
-            self.add_error("name", "Name not given.")
-        else:
-            self.company = self.Meta.model.objects.filter(name=self.cleaned_data['name']).first()
-            if not self.company:
-                self.add_error("name", "Your company did not contact me for recruitment purposes.")
-            else:
-                if not self.company.active:
-                    self.add_error("name",
-                                   "Your company does not have access to my CV anymore. "
-                                   "If you wish to see it, please contact me again.")
+        if not self.cleaned_data["codename"]:
+            self.add_error("codename", "Name not given.")
         return self.cleaned_data
 
 
@@ -49,6 +41,18 @@ class RecruitmentProcessAdminForm(forms.ModelForm):
         ]
         self.fields['texts'].choices = choices
 
+    def clean(self):
+        if self.instance.pk and\
+                self.cleaned_data['active'] and\
+                self.Meta.model.objects.filter(
+                    codename=self.cleaned_data['codename'],
+                    active=True
+                ).exclude(
+                    pk=self.instance.pk
+                ).first():
+            self.add_error('codename', _('There is already an active process with given codename.'))
+        return self.cleaned_data
+
 
 class ProcessLogAdminForm(forms.ModelForm):
     class Meta:
@@ -56,13 +60,6 @@ class ProcessLogAdminForm(forms.ModelForm):
         fields = '__all__'
         widgets = {'log': forms.Textarea()}
         #widgets = {'log': CKEditorWidget(config_name='default')}
-
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     if self.instance and self.instance.pk:
-    #         self.fields['log'].widget = forms.HiddenInput()
-    #     else:
-    #         self.fields['log'].widget = CKEditorWidget(config_name='default')
 
 
 class AnswerFormset(forms.BaseModelFormSet):
