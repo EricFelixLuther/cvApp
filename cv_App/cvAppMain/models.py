@@ -170,18 +170,6 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
         pass
 
 
-@receiver(models.signals.pre_save, sender=RecruitmentProcess)
-def auto_delete_pdfs_on_update(sender, instance, **kwargs):
-    """
-    Clear generated PDFs when recruiting process is updated.
-    """
-    if not instance.pk:
-        return False
-
-    for pdf in instance.generatedpdf_set.all():
-        pdf.delete()
-
-
 @receiver(models.signals.post_delete, sender=RecruitmentProcess)
 def auto_delete_pdfs_on_delete(sender, instance, **kwargs):
     """

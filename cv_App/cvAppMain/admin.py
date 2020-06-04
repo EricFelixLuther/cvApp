@@ -9,11 +9,14 @@ from dbtemplates.models import Template
 from django.contrib import admin
 
 from django import forms
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django_ace import AceWidget
 from simple_history.admin import SimpleHistoryAdmin
 
-from cvAppMain.forms import RecruitmentProcessAdminForm, TextAdminForm, ProcessLogAdminForm, AnswerFormset
+from cvAppMain.forms import RecruitmentProcessAdminForm, TextAdminForm, ProcessLogAdminForm, AnswerFormset, \
+    GeneratePDFAdminForm
+from cvAppMain.helpers import get_cv_url
 from cvAppMain.models import TextType, Language, Text, RecruitmentProcess, Picture, GeneratedPDF, ContactPerson, \
     RecruitmentAgency, RecruitingCompany, Question, Answer, Benefit, ProcessLog
 
@@ -69,13 +72,34 @@ class AnswerAdminInline(admin.StackedInline):
 class GeneratedPDFInlineViewOnly(admin.StackedInline):
     model = GeneratedPDF
     extra = 0
-    readonly_fields = ('process', 'language', 'pdf')
+    readonly_fields = ('process', 'language', 'pdf', 'download_pdf', 'view_cv')
     verbose_name = "Cached PDF file"
 
     def has_change_permission(self, request, obj=None):
         return False
 
     def has_add_permission(self, request, obj=None):
+        return False
+
+    def download_pdf(self, instance):
+        return mark_safe(
+            f'<a href="{get_cv_url(instance.process.codename, instance.language, "pdf")}">'
+            f'{_("Download PDF")}</a>')
+
+    def view_cv(self, instance):
+        return mark_safe(
+            f'<a href="{get_cv_url(instance.process.codename, instance.language, "html")}">'
+            f'{_("View CV")}</a>')
+
+
+class GeneratedPDFInlineCreate(admin.StackedInline):
+    model = GeneratedPDF
+    form = GeneratePDFAdminForm
+    extra = 1
+    # fields = ('process', 'language')
+    verbose_name = "Cached PDF file"
+
+    def has_view_or_change_permission(self, request, obj=None):
         return False
 
 
@@ -107,7 +131,8 @@ class RecruitmentProcessAdmin(admin.ModelAdmin):
     )
 
     inlines = (ProcessLogAdminInlineView, ProcessLogAdminInlineAdd,
-               AnswerAdminInline, GeneratedPDFInlineViewOnly)
+               AnswerAdminInline, GeneratedPDFInlineViewOnly,
+               GeneratedPDFInlineCreate)
 
     save_as = True
 

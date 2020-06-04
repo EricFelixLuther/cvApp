@@ -2,7 +2,8 @@ from ckeditor.widgets import CKEditorWidget
 from django import forms
 from django.utils.translation import gettext as _
 
-from cvAppMain.models import RecruitmentProcess, Language, Text, TextType, ProcessLog, Answer
+from cvAppMain.models import RecruitmentProcess, Language, Text, TextType, ProcessLog, Answer, GeneratedPDF
+from cvAppMain.pdf_logic import render_to_pdf
 
 
 class CompanySelectForm(forms.ModelForm):
@@ -65,3 +66,14 @@ class ProcessLogAdminForm(forms.ModelForm):
 
 class AnswerFormset(forms.BaseModelFormSet):
     model = Answer
+
+
+class GeneratePDFAdminForm(forms.ModelForm):
+    class Meta:
+        model = GeneratedPDF
+        fields = ('process', 'language')
+        widgets = {'process': forms.HiddenInput}
+
+    def save(self, *args, **kwargs):
+        render_to_pdf(self.instance.process, self.instance.language)
+        return self.Meta.model.objects.latest('pk')
