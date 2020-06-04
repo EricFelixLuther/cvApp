@@ -1,18 +1,12 @@
-import os
-import markdown2
-import logging
-
-from django.db.models import Q
 from django.http import HttpResponse
-from django.shortcuts import render
-from django.template.loader import render_to_string
-from django.utils.safestring import mark_safe
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 from django.views import View
 
 from cvAppMain.forms import CompanySelectForm
-
-
-logger = logging.getLogger('debug')
+from cvAppMain.helpers import get_cv_url
+from cvAppMain.models import RecruitmentProcess, Language
+from cvAppMain.pdf_logic import get_pdf, make_context
 
 
 class CV_Viewer(View):
@@ -20,70 +14,65 @@ class CV_Viewer(View):
     form = CompanySelectForm
 
     def get(self, request, *args, **kwargs):
-        return render(
-            request,
-            template_name=self.template_name,
-            context={"form": self.form()}
-        )
+        if request.GET:
+            return self._get_cv(request)
+        else:
+            return render(
+                request,
+                template_name=self.template_name,
+                context={"form": self.form()}
+            )
+
+    def _get_cv(self, request):
+        codename = request.GET.get('codename')
+        language = request.GET.get('language')
+        doc_type = request.GET.get('doc_type', 'html')
+
+        process = RecruitmentProcess.objects.filter(
+            codename=codename,
+            active=True
+        ).first()
+        language = get_object_or_404(Language, lang=language)
+        if process:
+            if doc_type == 'html':
+                return render(
+                    request,
+                    process.document.name,
+                    context=make_context(process, language)
+                )
+            elif doc_type == 'pdf':
+                return get_pdf(process, language)
+            else:
+                return HttpResponse("Unknown document type requested.", status=400)
+        else:
+            other_processes = RecruitmentProcess.objects.filter(codename=codename)
+            if other_processes:
+                return HttpResponse(
+                    'This CV is no longer available to this company. If you wish to view it again '
+                    'please, contact me on LinkedIn, or on e-mail: krzysztof at maciejczuk dot pl',
+                    status=403
+                )
+            else:
+                return HttpResponse(
+                    'Your company did not contact me regarding recruitment. '
+                    'Please, contact me on LinkedIn, or on e-mail: krzysztof at maciejczuk dot pl',
+                    status=404
+                )
 
     def post(self, request, *args, **kwargs):
         btn = request.POST.get("submit", False)
         form = self.form(data=request.POST)
         if form.is_valid():
-            context = {"company": form.company}
-            for each in form.company.texts.filter(
-                    Q(language=form.cleaned_data["language"]) |
-                    Q(language__isnull=True)):
-                if each.markdown:
-                    context[each.text_type.codename] = mark_safe(markdown2.markdown(each.text, extras=["tables"]))
-                else:
-                    context[each.text_type.codename] = mark_safe(each.text)
-
-            if btn == "get_cv":
-                return self._get_view(request, form, context)
-            elif btn == "print_cv":
-                return self._get_pdf(request, form, context)
-            else:
-                return HttpResponse("Bad request!", status=400)
+            return redirect(
+                get_cv_url(
+                    form.cleaned_data["codename"],
+                    form.cleaned_data["language"],
+                    btn
+                )
+            )
         else:
             return render(
                 request,
                 template_name=self.template_name,
                 context={"form": form}
             )
-
-    def _get_view(self, request, form, context):
-        return render(
-            request,
-            form.company.document.name,
-            context=context
-        )
-
-    def _get_pdf(self, request, form, context):
-        try:
-            if form.company.lock_pdf:
-                # Find previously generated file
-                with open(f'pdfs/{form.company.codename}.pdf', 'rb') as f:
-                    response = HttpResponse(f, content_type='application/pdf')
-            else:
-                response = render_to_pdf(form, context)
-        except FileNotFoundError:  # If none was generated, generate it
-            response = render_to_pdf(form, context)
-
-        return response
-
-def render_to_pdf(form, context):
-    try:  # Render HTML into a file, try generating it
-        html = render_to_string(form.company.document.name, context)
-        with open(f'{form.company.codename}.html', 'w') as f:
-            f.write(str(html))
-
-        os.system(f'wkhtmltopdf {form.company.codename}.html pdfs/{form.company.codename}.pdf')
-        os.remove(f'{form.company.codename}.html')  # Remove HTML, it's redundant now
-
-        with open(f'pdfs/{form.company.codename}.pdf', 'rb') as f:
-            return HttpResponse(f, content_type='application/pdf')
-
-    except Exception as e:
-        logger.error(e)
-        return HttpResponse('Something went wrong while generating PDF! Sorry!')

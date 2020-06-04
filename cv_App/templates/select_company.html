@@ -4,8 +4,18 @@
 <div class="container">
     <div class="row justify-content-center align-items-center my-5 p-5">
         <div class="col-lg-8 col-md-12">
-            <form method="post">
+            <form method="post" action="/get_cv/">
                 {% csrf_token %}
+                <div class="row">
+                    <div class="col">
+                        <h2>Krzysztof Maciejczuk CV</h2>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <h6>Please, enter shared code and select a language.</h6>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col">
                         <table class="table">
@@ -15,8 +25,8 @@
                 </div>
                 <div class="row justify-content-center">
                     <div class="col-6">
-                        <button class="btn btn-primary" type="submit" name="submit" value="get_cv">Get CV!</button>
-                        <button class="btn btn-primary" type="submit" name="submit" value="print_cv" title="Still experimental feature">Get PDF</button>
+                        <button class="btn btn-primary" type="submit" name="submit" value="html">View CV</button>
+                        <button class="btn btn-primary" type="submit" name="submit" value="pdf">Download PDF</button>
                     </div>
                 </div>
             </form>

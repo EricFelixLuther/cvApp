@@ -1,10 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ flatpage.title }}</title>
-</head>
-<body>
+{% extends "main.html" %}
+{% block title %}{{ flatemplatetempltpage.title }}{% endblock %}
+{% block content %}
 {{ flatpage.content }}
-</body>
-</html>
+{% endblock %}

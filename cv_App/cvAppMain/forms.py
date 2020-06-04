@@ -1,50 +1,38 @@
+from ckeditor.widgets import CKEditorWidget
 from django import forms
+from django.utils.translation import gettext as _
 
-from cvAppMain.models import RecruitingCompany, Language, Text, TextType
+from cvAppMain.models import RecruitmentProcess, Language, Text, TextType, ProcessLog, Answer, GeneratedPDF
+from cvAppMain.pdf_logic import render_to_pdf
 
 
 class CompanySelectForm(forms.ModelForm):
     language = forms.ModelChoiceField(queryset=Language.objects.all(),
                                       required=True)
+
     class Meta:
-        model = RecruitingCompany
-        fields = ["name"]
+        model = RecruitmentProcess
+        fields = ["codename"]
 
     def clean(self):
-        if not self.cleaned_data["name"]:
-            self.add_error("name", "Name not given.")
-        else:
-            self.company = self.Meta.model.objects.filter(name=self.cleaned_data['name']).first()
-            if not self.company:
-                self.add_error("name", "Your company did not contact me for recruitment purposes.")
-            else:
-                if not self.company.active:
-                    self.add_error("name", "Your company does not have access to my CV anymore. If you wish to see it, again, please contact me again.")
+        if not self.cleaned_data["codename"]:
+            self.add_error("codename", "Name not given.")
         return self.cleaned_data
 
 
 class TextAdminForm(forms.ModelForm):
+    text = forms.CharField(widget=CKEditorWidget(config_name='advanced'))
+
     class Meta:
         model = Text
         fields = '__all__'
-        widgets = {'text': forms.Textarea(attrs={'width': '100%', 'height': '100%'})}
 
 
-class RecruitingCompanyAdminForm(forms.ModelForm):
+class RecruitmentProcessAdminForm(forms.ModelForm):
     class Meta:
-        model = RecruitingCompany
+        model = RecruitmentProcess
         fields = '__all__'
-
-    # class Media:
-    #     css = {'all': ('chosen_v1.8.7/chosen.min.css', 'chosen_v1.8.7/docsupport/prism.css')}
-    #     js = (
-    #         'jquery.min.js',
-    #         'chosen_v1.8.7/chosen.jquery.min.js',
-    #         'chosen_v1.8.7/chosen.proto.min.js',
-    #         'chosen_v1.8.7/docsupport/prism.js',
-    #         'chosen_v1.8.7/docsupport/init.js',
-    #         'recruiting_company.js'
-    #     )
+        widgets = {'notes': CKEditorWidget(config_name='default')}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -54,3 +42,38 @@ class RecruitingCompanyAdminForm(forms.ModelForm):
             ]] for text_type in TextType.objects.all()
         ]
         self.fields['texts'].choices = choices
+
+    def clean(self):
+        """Make sure there is only one active recruitation process with selected codename"""
+        if self.instance.pk and\
+                self.cleaned_data['active'] and\
+                self.Meta.model.objects.filter(
+                    codename=self.cleaned_data['codename'],
+                    active=True
+                ).exclude(
+                    pk=self.instance.pk
+                ).first():
+            self.add_error('codename', _('There is already an active process with given codename.'))
+        return self.cleaned_data
+
+
+class ProcessLogAdminForm(forms.ModelForm):
+    class Meta:
+        model = ProcessLog
+        fields = '__all__'
+        widgets = {'log': forms.Textarea()}
+
+
+class AnswerFormset(forms.BaseModelFormSet):
+    model = Answer
+
+
+class GeneratePDFAdminForm(forms.ModelForm):
+    class Meta:
+        model = GeneratedPDF
+        fields = ('process', 'language')
+        widgets = {'process': forms.HiddenInput}
+
+    def save(self, *args, **kwargs):
+        render_to_pdf(self.instance.process, self.instance.language)
+        return self.Meta.model.objects.latest('pk')
