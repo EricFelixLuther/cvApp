@@ -19,7 +19,8 @@
     <script type="text/javascript">
         $(document).ready(function() {
             var body = $("body");
-            var company_name = "{% autoescape off %}{{ company.name }}{% endautoescape %}";
+            var company_name = "{% autoescape off %}{{ process.recruiting_company.name }}{% endautoescape %}";
+            var agency_name = "{% autoescape off %}{{ process.recruiting_agency.name }}{% endautoescape %}";
             {% block extra_js %}{% endblock %}
         });
     </script>
