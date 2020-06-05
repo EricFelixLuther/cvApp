@@ -58,7 +58,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'cvApp.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -76,13 +75,14 @@ TEMPLATES = [
                 'django.template.context_processors.request',
             ],
             'loaders': [
+                'dbtemplates.loader.Loader',
                 'django.template.loaders.filesystem.Loader',
                 'django.template.loaders.app_directories.Loader',
-                'dbtemplates.loader.Loader',
             ],
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'cvApp.wsgi.application'
 
