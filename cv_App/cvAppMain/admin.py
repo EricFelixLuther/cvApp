@@ -9,13 +9,13 @@ from dbtemplates.models import Template
 from django.contrib import admin
 
 from django import forms
+from django.db import models
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django_ace import AceWidget
 from simple_history.admin import SimpleHistoryAdmin
 
-from cvAppMain.forms import RecruitmentProcessAdminForm, TextAdminForm, ProcessLogAdminForm, AnswerFormset, \
-    GeneratePDFAdminForm
+from cvAppMain.forms import RecruitmentProcessAdminForm, GeneratePDFAdminForm
 from cvAppMain.helpers import get_cv_url
 from cvAppMain.models import TextType, Language, Text, RecruitmentProcess, Picture, GeneratedPDF, ContactPerson, \
     RecruitmentAgency, RecruitingCompany, Question, Answer, Benefit, ProcessLog
@@ -68,12 +68,14 @@ class RecruitmentAgencyAdmin(admin.ModelAdmin):
 
 @admin.register(Text)
 class TextAdmin(SimpleHistoryAdmin):
-    form = TextAdminForm
     ordering = ('language__lang', 'text_type__codename', 'title')
     list_display = ('title', 'language', 'text_type')
     list_filter = ('language', 'text_type')
     search_fields = ('title', 'text')
     fields = (('title', 'text_type', 'language'), 'text')
+    formfield_overrides = {
+        models.TextField: {'widget': CKEditorWidget(config_name='advanced')}
+    }
 
 
 class ProcessLogAdminInlineView(admin.TabularInline):
@@ -92,7 +94,6 @@ class ProcessLogAdminInlineView(admin.TabularInline):
 class ProcessLogAdminInlineAdd(admin.TabularInline):
     model = ProcessLog
     extra = 1
-    form = ProcessLogAdminForm
 
     def has_view_or_change_permission(self, request, obj=None):
         return False

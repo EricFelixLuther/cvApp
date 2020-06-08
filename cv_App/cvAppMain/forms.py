@@ -20,14 +20,6 @@ class CompanySelectForm(forms.ModelForm):
         return self.cleaned_data
 
 
-class TextAdminForm(forms.ModelForm):
-    text = forms.CharField(widget=CKEditorWidget(config_name='advanced'))
-
-    class Meta:
-        model = Text
-        fields = '__all__'
-
-
 class RecruitmentProcessAdminForm(forms.ModelForm):
     class Meta:
         model = RecruitmentProcess
@@ -55,17 +47,6 @@ class RecruitmentProcessAdminForm(forms.ModelForm):
                 ).first():
             self.add_error('codename', _('There is already an active process with given codename.'))
         return self.cleaned_data
-
-
-class ProcessLogAdminForm(forms.ModelForm):
-    class Meta:
-        model = ProcessLog
-        fields = '__all__'
-        widgets = {'log': forms.Textarea()}
-
-
-class AnswerFormset(forms.BaseModelFormSet):
-    model = Answer
 
 
 class GeneratePDFAdminForm(forms.ModelForm):

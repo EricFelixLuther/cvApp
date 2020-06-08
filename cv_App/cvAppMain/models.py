@@ -70,7 +70,7 @@ class ContactPerson(models.Model):
 class RecruitmentAgency(models.Model):
     name = models.CharField(max_length=64)
     contact_persons = models.ManyToManyField(ContactPerson, blank=True)
-    notes = models.CharField(max_length=255, blank=True)
+    notes = models.TextField(blank=True)
     history = HistoricalRecords()
 
     def __str__(self):
@@ -83,8 +83,8 @@ class RecruitmentAgency(models.Model):
 class RecruitingCompany(models.Model):
     name = models.CharField(max_length=64)
     contact_persons = models.ManyToManyField(ContactPerson, blank=True)
-    location = models.CharField(max_length=64, blank=True)  # TODO: geolocation
-    notes = models.CharField(max_length=128, blank=True)
+    location = models.CharField(max_length=128, blank=True)  # TODO: geolocation
+    notes = models.TextField(blank=True)
     history = HistoricalRecords()
 
     def __str__(self):
@@ -103,7 +103,7 @@ class Question(models.Model):
 
 class Answer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    text = models.CharField(max_length=128, blank=True)
+    text = models.TextField(blank=True)
     process = models.ForeignKey('RecruitmentProcess', on_delete=models.CASCADE)
 
     def __str__(self):
@@ -111,7 +111,7 @@ class Answer(models.Model):
 
 
 class Benefit(models.Model):
-    text = models.CharField(max_length=32)
+    text = models.CharField(max_length=64)
 
     def __str__(self):
         return self.text
@@ -130,7 +130,7 @@ class RecruitmentProcess(models.Model):
     active = models.BooleanField(default=True)
     fork = models.CharField(max_length=32, blank=True)
     benefits = models.ManyToManyField(Benefit, blank=True)
-    notes = models.CharField(max_length=255, blank=True)
+    notes = models.TextField(blank=True)
     document = models.ForeignKey(Template, on_delete=models.CASCADE, blank=True)
     texts = models.ManyToManyField(Text, blank=True)
     picture = models.ForeignKey(Picture, on_delete=models.SET_NULL, null=True, blank=True)
@@ -155,10 +155,11 @@ class RecruitmentProcess(models.Model):
 class ProcessLog(models.Model):
     process = models.ForeignKey(RecruitmentProcess, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(blank=True, default=now)
-    log = models.CharField(max_length=128)
+    log = models.TextField()
 
     class Meta:
         ordering = ('-timestamp',)
+
 
 class GeneratedPDF(models.Model):
     process = models.ForeignKey(RecruitmentProcess, on_delete=models.CASCADE)
