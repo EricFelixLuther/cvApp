@@ -24,12 +24,46 @@ admin.site.register((
     TextType,
     Language,
     Picture,
-    ContactPerson,
-    RecruitmentAgency,
-    RecruitingCompany,
     Question,
     Benefit
 ))
+
+
+@admin.register(ContactPerson)
+class ContactPersonAdmin(admin.ModelAdmin):
+    ordering = ('last_name', 'first_name')
+    list_display = ('first_name', 'last_name', 'phone', 'email', 'linkedin', 'notes')
+    search_fields = list_display
+    fields = (('first_name', 'last_name'), ('phone', 'email', 'linkedin'), 'notes')
+    list_display_links = ('first_name', 'last_name')
+
+
+@admin.register(RecruitingCompany)
+class RecruitingCompanyAdmin(admin.ModelAdmin):
+    ordering = ('name', )
+    list_display = ['name', 'location', 'notes']
+    search_fields = list_display + [
+        'contact_persons__first_name',
+        'contact_persons__last_name',
+        'contact_persons__phone',
+        'contact_persons__email',
+        'contact_persons__linkedin',
+    ]
+    fields = (('name', 'location'), 'notes', 'contact_persons')
+
+
+@admin.register(RecruitmentAgency)
+class RecruitmentAgencyAdmin(admin.ModelAdmin):
+    ordering = ('name', )
+    list_display = ['name', 'notes']
+    search_fields = list_display + [
+        'contact_persons__first_name',
+        'contact_persons__last_name',
+        'contact_persons__phone',
+        'contact_persons__email',
+        'contact_persons__linkedin',
+    ]
+    fields = ('name', 'notes', 'contact_persons')
 
 
 @admin.register(Text)
@@ -42,10 +76,11 @@ class TextAdmin(SimpleHistoryAdmin):
     fields = (('title', 'text_type', 'language'), 'text')
 
 
-class ProcessLogAdminInlineView(admin.StackedInline):
+class ProcessLogAdminInlineView(admin.TabularInline):
     model = ProcessLog
     extra = 0
-    readonly_fields = ('log', )
+    readonly_fields = ('timestamp', 'log')
+    ordering = ('-timestamp', )
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -54,7 +89,7 @@ class ProcessLogAdminInlineView(admin.StackedInline):
         return False
 
 
-class ProcessLogAdminInlineAdd(admin.StackedInline):
+class ProcessLogAdminInlineAdd(admin.TabularInline):
     model = ProcessLog
     extra = 1
     form = ProcessLogAdminForm
@@ -63,13 +98,13 @@ class ProcessLogAdminInlineAdd(admin.StackedInline):
         return False
 
 
-class AnswerAdminInline(admin.StackedInline):
+class AnswerAdminInline(admin.TabularInline):
     model = Answer
     extra = 0
     verbose_name = 'Recruiter answer'
 
 
-class GeneratedPDFInlineViewOnly(admin.StackedInline):
+class GeneratedPDFInlineViewOnly(admin.TabularInline):
     model = GeneratedPDF
     extra = 0
     readonly_fields = ('process', 'language', 'pdf', 'download_pdf', 'view_cv')
@@ -96,7 +131,6 @@ class GeneratedPDFInlineCreate(admin.StackedInline):
     model = GeneratedPDF
     form = GeneratePDFAdminForm
     extra = 1
-    # fields = ('process', 'language')
     verbose_name = "Cached PDF file"
 
     def has_view_or_change_permission(self, request, obj=None):
@@ -108,21 +142,32 @@ class RecruitmentProcessAdmin(admin.ModelAdmin):
     form = RecruitmentProcessAdminForm
     ordering = ('-active', 'recruiting_company__name')
     list_display = (
-        'active', '__str__', 'codename', 'recruiting_agency', 'document', 'picture')
-    list_filter = ('active', 'picture', 'document', 'recruiting_company')
+        'active', 'recruiting_company', 'position', 'fork', 'recruiting_agency', 'codename',
+        'document', 'picture')
+    list_filter = ('active', 'picture', 'document')
     actions = ['remove_pdfs', 'activate', 'deactivate']
     search_fields = (
         'position', 'codename', 'recruiting_company__name', 'recruiting_agency__name',
-        'fork', 'my_questions__text', 'their_answers__text', 'benefits__text', 'notes',
-        'texts__title', 'texts__text'
+        'fork', 'benefits__text', 'notes', 'texts__title', 'texts__text',
+        'recruiting_company__contact_persons__first_name',
+        'recruiting_company__contact_persons__last_name',
+        'recruiting_company__contact_persons__phone',
+        'recruiting_company__contact_persons__email',
+        'recruiting_company__contact_persons__linkedin',
+        'recruiting_agency__contact_persons__first_name',
+        'recruiting_agency__contact_persons__last_name',
+        'recruiting_agency__contact_persons__phone',
+        'recruiting_agency__contact_persons__email',
+        'recruiting_agency__contact_persons__linkedin',
+
     )
-    list_display_links = ('active', '__str__')
+    list_display_links = list_display
     fieldsets = (
         ('Basic', {
             'fields': (('position', 'recruiting_company', 'recruiting_agency'), )
         }),
         ('Additional', {
-            'fields': (('active', 'fork', 'codename'), ('benefits', 'my_questions'),
+            'fields': (('active', 'fork', 'benefits', 'codename'),
                        'notes')
         }),
         ('CV Template Settings', {
@@ -147,7 +192,7 @@ class RecruitmentProcessAdmin(admin.ModelAdmin):
             self.message_user(request, f'{files} cached files were deleted.')
         else:
             self.message_user(request, 'No cached files were deleted.')
-    remove_pdfs.short_description = "Remove generated PDF files"
+    remove_pdfs.short_description = _("Remove cached PDF files")
 
     def _set_active(self, request, queryset, active):
         rows_updated = queryset.update(active=active)
@@ -164,11 +209,11 @@ class RecruitmentProcessAdmin(admin.ModelAdmin):
 
     def activate(self, request, queryset):
         self._set_active(request, queryset, True)
-    activate.short_description = 'Mark recruitation process as active'
+    activate.short_description = _('Mark recruitation process as active')
 
     def deactivate(self, request, queryset):
         self._set_active(request, queryset, False)
-    deactivate.short_description = 'Mark recruitation process as finished'
+    deactivate.short_description = _('Mark recruitation process as finished')
 
 ##############################
 ### Updates on dbtemplates ###
