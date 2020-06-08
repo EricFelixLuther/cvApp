@@ -7,6 +7,7 @@ from django.dispatch import receiver
 from django.http import HttpResponse
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
+from django.utils.timezone import now
 from simple_history.models import HistoricalRecords
 
 pattern = re.compile('[\W_]+')
@@ -53,12 +54,17 @@ class ContactPerson(models.Model):
     first_name = models.CharField(max_length=64)
     last_name = models.CharField(max_length=64)
     phone = models.CharField(max_length=64, blank=True)
-    email = models.CharField(max_length=64, blank=True)
+    email = models.EmailField(max_length=128, blank=True)
+    linkedin = models.URLField(max_length=256, blank=True)
     notes = models.CharField(max_length=128, blank=True)
+
     history = HistoricalRecords()
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
+
+    class Meta:
+        ordering = ('last_name', 'first_name')
 
 
 class RecruitmentAgency(models.Model):
@@ -69,6 +75,9 @@ class RecruitmentAgency(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        ordering = ('name', )
 
 
 class RecruitingCompany(models.Model):
@@ -88,6 +97,9 @@ class Question(models.Model):
     def __str__(self):
         return self.text
 
+    class Meta:
+        ordering = ('text', )
+
 
 class Answer(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
@@ -104,6 +116,9 @@ class Benefit(models.Model):
     def __str__(self):
         return self.text
 
+    class Meta:
+        ordering = ('text', )
+
 
 class RecruitmentProcess(models.Model):
     position = models.CharField(max_length=64)
@@ -113,8 +128,7 @@ class RecruitmentProcess(models.Model):
                                           blank=True, null=True)
     codename = models.CharField(max_length=64, blank=True)
     active = models.BooleanField(default=True)
-    fork = models.CharField(max_length=16, blank=True)
-    my_questions = models.ManyToManyField(Question, blank=True)
+    fork = models.CharField(max_length=32, blank=True)
     benefits = models.ManyToManyField(Benefit, blank=True)
     notes = models.CharField(max_length=255, blank=True)
     document = models.ForeignKey(Template, on_delete=models.CASCADE, blank=True)
@@ -140,12 +154,11 @@ class RecruitmentProcess(models.Model):
 
 class ProcessLog(models.Model):
     process = models.ForeignKey(RecruitmentProcess, on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now=True)
+    timestamp = models.DateTimeField(blank=True, default=now)
     log = models.CharField(max_length=128)
 
-    def __str__(self):
-        return self.timestamp.strftime('%Y-%m-%d %H:%M')
-
+    class Meta:
+        ordering = ('-timestamp',)
 
 class GeneratedPDF(models.Model):
     process = models.ForeignKey(RecruitmentProcess, on_delete=models.CASCADE)
