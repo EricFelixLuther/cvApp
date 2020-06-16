@@ -77,6 +77,9 @@ class TextAdmin(SimpleHistoryAdmin):
         models.TextField: {'widget': CKEditorWidget(config_name='advanced')}
     }
 
+    class Media:
+        js = ('ckeditor.config.js', )
+
 
 class ProcessLogAdminInlineView(admin.TabularInline):
     model = ProcessLog
