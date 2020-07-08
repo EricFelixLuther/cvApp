@@ -151,6 +151,10 @@ class RecruitmentProcess(models.Model):
             )
         )
 
+    @cached_property
+    def last_log(self):
+        return self.processlog_set.order_by('-timestamp').first()
+
 
 class ProcessLog(models.Model):
     process = models.ForeignKey(RecruitmentProcess, on_delete=models.CASCADE)
@@ -159,6 +163,9 @@ class ProcessLog(models.Model):
 
     class Meta:
         ordering = ('-timestamp',)
+
+    def __str__(self):
+        return self.timestamp.strftime('%Y-%m-%d %H:%M')
 
 
 class GeneratedPDF(models.Model):
