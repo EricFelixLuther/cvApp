@@ -122,9 +122,9 @@ class Benefit(models.Model):
 
 class RecruitmentProcess(models.Model):
     # Basic info
-    position = models.CharField(max_length=64)
+    position = models.CharField(max_length=64, blank=True, default='undisclosed')
     recruiting_company = models.ForeignKey(RecruitingCompany, on_delete=models.CASCADE,
-                                           null=True)
+                                           null=True, blank=True)
     recruiting_agency = models.ForeignKey(RecruitmentAgency, on_delete=models.CASCADE,
                                           blank=True, null=True)
     codename = models.CharField(max_length=64, blank=True)
