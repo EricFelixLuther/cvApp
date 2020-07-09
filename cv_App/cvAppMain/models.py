@@ -121,6 +121,7 @@ class Benefit(models.Model):
 
 
 class RecruitmentProcess(models.Model):
+    # Basic info
     position = models.CharField(max_length=64, blank=True, default='undisclosed')
     recruiting_company = models.ForeignKey(RecruitingCompany, on_delete=models.CASCADE,
                                            null=True, blank=True)
@@ -128,10 +129,12 @@ class RecruitmentProcess(models.Model):
                                           blank=True, null=True)
     codename = models.CharField(max_length=64, blank=True)
     active = models.BooleanField(default=True)
+    # Additional info
     fork = models.CharField(max_length=32, blank=True)
     benefits = models.ManyToManyField(Benefit, blank=True)
     notes = models.TextField(blank=True)
-    document = models.ForeignKey(Template, on_delete=models.CASCADE, blank=True)
+    # CV document related
+    document = models.ForeignKey(Template, on_delete=models.CASCADE, blank=True, null=True)
     texts = models.ManyToManyField(Text, blank=True)
     picture = models.ForeignKey(Picture, on_delete=models.SET_NULL, null=True, blank=True)
 
