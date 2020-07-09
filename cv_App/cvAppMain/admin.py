@@ -78,11 +78,41 @@ class TextAdmin(SimpleHistoryAdmin):
     }
 
 
+@admin.register(ProcessLog)
+class ProcessLogAdmin(admin.ModelAdmin):
+    ordering = ('-timestamp',)
+    list_display = ['process', 'timestamp']
+    search_fields = ('log',
+                     'process__recruiting_company__name',
+                     'process__recruiting_company__location',
+                     'process__recruiting_company__notes',
+                     'process__recruiting_company__contact_persons__first_name',
+                     'process__recruiting_company__contact_persons__last_name',
+                     'process__recruiting_company__contact_persons__phone',
+                     'process__recruiting_company__contact_persons__email',
+                     'process__recruiting_company__contact_persons__linkedin',
+                     'process__recruiting_company__contact_persons__notes',
+                     'process__recruiting_agency__name',
+                     'process__recruiting_agency__notes',
+                     'process__recruiting_agency__contact_persons__first_name',
+                     'process__recruiting_agency__contact_persons__last_name',
+                     'process__recruiting_agency__contact_persons__phone',
+                     'process__recruiting_agency__contact_persons__email',
+                     'process__recruiting_agency__contact_persons__linkedin',
+                     'process__recruiting_agency__contact_persons__notes',
+                     'process__position',
+                     'process__codename',
+                     'process__fork',
+                     'process__notes'
+                     )
+
+
 class ProcessLogAdminInlineView(admin.TabularInline):
     model = ProcessLog
     extra = 0
     readonly_fields = ('timestamp', 'log')
     ordering = ('-timestamp', )
+    classes = ('collapse', )
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -94,6 +124,8 @@ class ProcessLogAdminInlineView(admin.TabularInline):
 class ProcessLogAdminInlineAdd(admin.TabularInline):
     model = ProcessLog
     extra = 1
+    verbose_name_plural = 'Add new process log'
+    classes = ('collapse', )
 
     def has_view_or_change_permission(self, request, obj=None):
         return False
@@ -103,6 +135,8 @@ class AnswerAdminInline(admin.TabularInline):
     model = Answer
     extra = 0
     verbose_name = 'Recruiter answer'
+    verbose_name_plural = 'Questions and answers'
+    classes = ('collapse',)
 
 
 class GeneratedPDFInlineViewOnly(admin.TabularInline):
@@ -110,6 +144,7 @@ class GeneratedPDFInlineViewOnly(admin.TabularInline):
     extra = 0
     readonly_fields = ('process', 'language', 'pdf', 'download_pdf', 'view_cv')
     verbose_name = "Cached PDF file"
+    classes = ('collapse',)
 
     def has_change_permission(self, request, obj=None):
         return False
@@ -132,7 +167,8 @@ class GeneratedPDFInlineCreate(admin.StackedInline):
     model = GeneratedPDF
     form = GeneratePDFAdminForm
     extra = 1
-    verbose_name = "Cached PDF file"
+    verbose_name_plural = 'Generate new PDF'
+    classes = ('collapse',)
 
     def has_view_or_change_permission(self, request, obj=None):
         return False
@@ -144,7 +180,7 @@ class RecruitmentProcessAdmin(admin.ModelAdmin):
     ordering = ('-active', 'recruiting_company__name')
     list_display = (
         'active', 'recruiting_company', 'position', 'fork', 'recruiting_agency', 'codename',
-        'document', 'picture')
+        'document', 'picture', 'last_log')
     list_filter = ('active', 'picture', 'document')
     actions = ['remove_pdfs', 'activate', 'deactivate']
     search_fields = (
@@ -169,10 +205,12 @@ class RecruitmentProcessAdmin(admin.ModelAdmin):
         }),
         ('Additional', {
             'fields': (('active', 'fork', 'benefits', 'codename'),
-                       'notes')
+                       'notes'),
+            'classes': ('collapse',)
         }),
         ('CV Template Settings', {
-            'fields': (('document', 'picture'), 'texts')
+            'fields': (('document', 'picture'), 'texts'),
+            'classes': ('collapse',)
         })
     )
 
