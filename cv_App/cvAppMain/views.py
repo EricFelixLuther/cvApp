@@ -34,6 +34,12 @@ class CV_Viewer(View):
         ).first()
         language = get_object_or_404(Language, lang=language)
         if process:
+            if not process.document:
+                return HttpResponse(
+                    'This CV is not available for this company. If you wish to view it '
+                    'please, contact me on LinkedIn, or on e-mail: krzysztof at maciejczuk dot pl',
+                    status=403
+                )
             if doc_type == 'html':
                 return render(
                     request,
