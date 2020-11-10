@@ -9,7 +9,7 @@ from django.utils.safestring import mark_safe
 from cvAppMain.helpers import get_cv_url
 from cvAppMain.models import GeneratedPDF
 
-logger = logging.getLogger('debug')
+logger = logging.getLogger('django')
 
 
 def make_context(process, language):

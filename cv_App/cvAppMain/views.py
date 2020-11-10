@@ -1,6 +1,5 @@
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
 from django.views import View
 
 from cvAppMain.forms import CompanySelectForm
@@ -25,21 +24,20 @@ class CV_Viewer(View):
 
     def _get_cv(self, request):
         codename = request.GET.get('codename')
-        language = request.GET.get('language')
-        doc_type = request.GET.get('doc_type', 'html')
 
         process = RecruitmentProcess.objects.filter(
             codename=codename,
             active=True
         ).first()
-        language = get_object_or_404(Language, lang=language)
         if process:
+            language = get_object_or_404(Language, lang=request.GET.get('language'))
             if not process.document:
                 return HttpResponse(
                     'This CV is not available for this company. If you wish to view it '
                     'please, contact me on LinkedIn, or on e-mail: krzysztof at maciejczuk dot pl',
                     status=403
                 )
+            doc_type = request.GET.get('doc_type', 'html')
             if doc_type == 'html':
                 return render(
                     request,
@@ -68,7 +66,7 @@ class CV_Viewer(View):
     def post(self, request, *args, **kwargs):
         btn = request.POST.get("submit", False)
         form = self.form(data=request.POST)
-        if form.is_valid():
+        if form.is_valid() and btn:
             return redirect(
                 get_cv_url(
                     form.cleaned_data["codename"],

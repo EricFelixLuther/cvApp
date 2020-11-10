@@ -121,15 +121,15 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {
         'file': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': '/code/cv_App/log/debug.log',
+            'filename': '/code/cv_App/log/info.log',
         },
     },
     'loggers': {
         'django': {
             'handlers': ['file'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': True,
         },
     },
