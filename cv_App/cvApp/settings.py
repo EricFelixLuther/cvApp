@@ -119,16 +119,29 @@ AUTH_PASSWORD_VALIDATORS = [
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'basic': {
+            'format': '{asctime} - {levelname} - {message}',
+            'style': '{'
+        },
+    },
     'handlers': {
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
             'filename': '/code/cv_App/log/info.log',
+            'formatter': 'basic'
+        },
+        'errors': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': '/code/cv_App/log/error.log',
+            'formatter': 'basic'
         },
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
+            'handlers': ['file', 'errors'],
             'level': 'INFO',
             'propagate': True,
         },

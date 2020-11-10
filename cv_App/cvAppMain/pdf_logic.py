@@ -35,9 +35,11 @@ def render_to_pdf(process, language):
     """Uses WKHTMLTOPDF to generate a PDF from URL.
     This function requires PROTOCOL and HOST settings to be set."""
     temp_pdf = f'pdfs/{process.codename}_{language.lang}.pdf'
+    wkhtmltopdf_command = f'wkhtmltopdf "{settings.PROTOCOL}{settings.HOST}{get_cv_url(process.codename, language, "html")}" {temp_pdf}'
 
     try:
-        os.system(f'wkhtmltopdf "{settings.PROTOCOL}{settings.HOST}{get_cv_url(process.codename, language, "html")}" {temp_pdf}')
+        logger.info(f"Rendering PDF to:\n{temp_pdf}\nwith command:\n{wkhtmltopdf_command}\n")
+        os.system(wkhtmltopdf_command)
     except Exception as e:
         logger.error("Error while generating PDF: " + str(e))
 

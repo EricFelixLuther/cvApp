@@ -8,7 +8,7 @@ from cvAppMain.models import RecruitmentProcess, Language
 from cvAppMain.pdf_logic import get_pdf, make_context
 
 
-class CV_Viewer(View):
+class CVViewer(View):
     template_name = "select_company.html"
     form = CompanySelectForm
 
@@ -33,9 +33,9 @@ class CV_Viewer(View):
             language = get_object_or_404(Language, lang=request.GET.get('language'))
             if not process.document:
                 return HttpResponse(
-                    'This CV is not available for this company. If you wish to view it '
+                    reason_phrase='This CV is not available for this company. If you wish to view it '
                     'please, contact me on LinkedIn, or on e-mail: krzysztof at maciejczuk dot pl',
-                    status=403
+                    status_code=403
                 )
             doc_type = request.GET.get('doc_type', 'html')
             if doc_type == 'html':
@@ -47,20 +47,20 @@ class CV_Viewer(View):
             elif doc_type == 'pdf':
                 return get_pdf(process, language)
             else:
-                return HttpResponse("Unknown document type requested.", status=400)
+                return HttpResponse(reason_phrase="Unknown document type requested.", status_code=400)
         else:
             other_processes = RecruitmentProcess.objects.filter(codename=codename)
             if other_processes:
                 return HttpResponse(
-                    'This CV is no longer available to this company. If you wish to view it again '
+                    reason_phrase='This CV is no longer available to this company. If you wish to view it again '
                     'please, contact me on LinkedIn, or on e-mail: krzysztof at maciejczuk dot pl',
-                    status=403
+                    status_code=403
                 )
             else:
                 return HttpResponse(
-                    'Your company did not contact me regarding recruitment. '
+                    reason_phrase='Your company did not contact me regarding recruitment. '
                     'Please, contact me on LinkedIn, or on e-mail: krzysztof at maciejczuk dot pl',
-                    status=404
+                    status_code=404
                 )
 
     def post(self, request, *args, **kwargs):
