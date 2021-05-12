@@ -129,13 +129,13 @@ LOGGING = {
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': '/code/cv_App/log/info.log',
+            'filename': '/var/log/cvapp/info.log',
             'formatter': 'basic'
         },
         'errors': {
             'level': 'ERROR',
             'class': 'logging.FileHandler',
-            'filename': '/code/cv_App/log/error.log',
+            'filename': '/var/log/cvapp/error.log',
             'formatter': 'basic'
         },
     },
@@ -204,7 +204,7 @@ CKEDITOR_CONFIGS = {
                        'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl',
                        ]},
             {'name': 'colors', 'items': ['TextColor', 'BGColor']},
-            ],
+        ],
         'toolbar': 'Advanced',
         'width': '1200',
         'toolbarCanCollapse': True,

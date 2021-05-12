@@ -6,5 +6,6 @@ services:
     command: python cv_App/manage.py runserver 0.0.0.0:8002
     volumes:
       - .:/code
+      - /var/log/cvapp:/var/log/cvapp
     ports:
       - "8002:8002"
