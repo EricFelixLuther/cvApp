@@ -222,6 +222,7 @@ CKEDITOR_CONFIGS = {
             'dialogui',
             'elementspath'
         ]),
+        'allowedContent': 'footer span'
     }
 }
 
