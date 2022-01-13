@@ -7,7 +7,7 @@ django-js-asset==1.2.2
 django-simple-history==2.10.0
 html5lib==1.0.1
 markdown2==2.3.9
-Pillow==7.1.2
+Pillow==9.0.0
 pytz==2019.2
 reportlab==3.5.23
 six==1.12.0
