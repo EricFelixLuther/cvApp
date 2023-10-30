@@ -12,7 +12,7 @@ class CVViewer(View):
     template_name = "select_company.html"
     form = CompanySelectForm
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         if request.GET:
             return self._get_cv(request)
         else:
@@ -63,7 +63,7 @@ class CVViewer(View):
                     status_code=404
                 )
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         btn = request.POST.get("submit", False)
         form = self.form(data=request.POST)
         if form.is_valid() and btn:

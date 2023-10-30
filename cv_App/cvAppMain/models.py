@@ -10,6 +10,8 @@ from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 from simple_history.models import HistoricalRecords
 
+from companies.models import Company
+
 pattern = re.compile('[\W_]+')
 
 
@@ -127,16 +129,20 @@ class RecruitmentProcess(models.Model):
                                            null=True, blank=True)
     recruiting_agency = models.ForeignKey(RecruitmentAgency, on_delete=models.CASCADE,
                                           blank=True, null=True)
+    companies = models.ManyToManyField(Company)
     codename = models.CharField(max_length=64, blank=True)
     active = models.BooleanField(default=True)
     # Additional info
     fork = models.CharField(max_length=32, blank=True)
     benefits = models.ManyToManyField(Benefit, blank=True)
+    # new_benefits = models.ManyToManyField(Benefit, blank=True)
     notes = models.TextField(blank=True)
     # CV document related
     document = models.ForeignKey(Template, on_delete=models.CASCADE, blank=True, null=True)
     texts = models.ManyToManyField(Text, blank=True)
+    new_texts = models.ManyToManyField(Text, blank=True)
     picture = models.ForeignKey(Picture, on_delete=models.SET_NULL, null=True, blank=True)
+    new_picture = models.ForeignKey(Picture, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f'{self.recruiting_company} - {self.position} ({self.fork})'
